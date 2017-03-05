@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>atan2</title>
+    <meta name="viewport" content="width=device-width,user-scalable=0,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0">
+    <style type="text/css">
+        body  {margin:0;padding:0;font-size:0;overflow:hidden;}
+        canvas{overflow:hidden;}
+    </style>
+</head>
+<body>
+    <canvas id="canvas" ></canvas>
+    <script src="../utils/utils.js"></script>
+    <script src="../classes/arrow.js"></script>
+    <script>
+        var canvas;
+        canvas = document.getElementById('canvas');
+        canvas.width=utils.getScreenSize().w;
+        canvas.height=utils.getScreenSize().h;
+
+        window.onresize = function () {
+            canvas.width=utils.getScreenSize().w;
+            canvas.height=utils.getScreenSize().h;
+        }
+
+        window.onload = function () {
+            var context = canvas.getContext('2d'),
+                mouse = utils.captureMouse(canvas),
+                arrow = new Arrow();
+
+            arrow.x = canvas.width / 2;
+            arrow.y = canvas.height / 2;
+
+            (function drawFrame () {
+                window.requestAnimationFrame(drawFrame, canvas);
+                context.clearRect(0, 0, canvas.width, canvas.height);
+
+                var dx = mouse.x - arrow.x,
+                    dy = mouse.y - arrow.y;
+
+                arrow.rotation = Math.atan(dy/dx); //Math.atan2(dy, dx);
+                arrow.draw(context);
+            }());
+        };
+
+
+    </script>
+</body>
+</html>

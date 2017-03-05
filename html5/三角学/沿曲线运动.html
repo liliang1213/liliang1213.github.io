@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>沿曲线运动</title>
+    <meta name="viewport" content="width=device-width,user-scalable=0,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0">
+    <style type="text/css">
+        body  {margin:0;padding:0;font-size:0;overflow:hidden;}
+        canvas{overflow:hidden;}
+    </style>
+</head>
+<body>
+    <canvas id="canvas" ></canvas>
+    <script src="../utils/utils.js"></script>
+    <script>
+        var canvas;
+        canvas = document.getElementById('canvas');
+        canvas.width=utils.getScreenSize().w;
+        canvas.height=utils.getScreenSize().h;
+
+        window.onresize = function () {
+            canvas.width=utils.getScreenSize().w;
+            canvas.height=utils.getScreenSize().h;
+        }
+
+        window.onload = function () {
+            context = canvas.getContext('2d'),
+                mouse = utils.captureMouse(canvas),
+                x0 = 100,
+                y0 = 200,
+                x2 = 300,
+                y2 = 200;
+
+            (function drawFrame () {
+                window.requestAnimationFrame(drawFrame, canvas);
+
+                context.beginPath();
+                context.moveTo(xpos, ypos);
+                xpos += xspeed;
+
+                /* xpos = centerX + Math.cos(angleX) * range;        //双向正弦运动路径
+                 angleX+=xspeed;*/
+                angleY += yspeed;
+                ypos = centerY + Math.sin(angleY) * range;
+                context.lineTo(xpos, ypos);
+                context.stroke();
+            }());
+        };
+
+    </script>
+</body>
+</html>

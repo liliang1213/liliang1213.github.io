@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>沿曲线运动</title>
+    <title>鼠标跟随效果</title>
     <meta name="viewport" content="width=device-width,user-scalable=0,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0">
     <style type="text/css">
         body  {margin:0;padding:0;font-size:0;overflow:hidden;}
@@ -12,6 +12,7 @@
 <body>
     <canvas id="canvas" ></canvas>
     <script src="../utils/utils.js"></script>
+    <script src="../classes/arrow.js"></script>
     <script>
         var canvas;
         canvas = document.getElementById('canvas');
@@ -24,38 +25,34 @@
         }
 
         window.onload = function () {
-            context = canvas.getContext('2d'),
+            var context = canvas.getContext('2d'),
                 mouse = utils.captureMouse(canvas),
-                x0 = 100,
-                y0 = 200,
-                x1=450,
-                y1=300,
-                t=0,
-                xpos=0,
-                ypos=0,
-                x2 = 200,
-                y2 = 400;
+                speed=2,
+                arrow = new Arrow();
+
+            arrow.x = canvas.width / 2;
+            arrow.y = canvas.height / 2;
 
             (function drawFrame () {
                 window.requestAnimationFrame(drawFrame, canvas);
+                context.clearRect(0, 0, canvas.width, canvas.height);
 
-                context.beginPath();
+                var dx = mouse.x - arrow.x,
+                    dy = mouse.y - arrow.y;
 
-                context.moveTo(xpos, ypos);
+                var angle=Math.atan2(dy, dx),
+                    vx=Math.cos(angle)*speed,
+                    vy=Math.sin(angle)*speed;
 
-                if(t<1){
-                    t += 0.01;
+                if(Math.abs(dy)>2||Math.abs(dx)>2){
+                    arrow.rotation = angle;
+                    arrow.x+=vx;
+                    arrow.y+=vy;
                 }
-
-                //二次贝塞尔曲线公式
-                xpos = Math.pow((1-t),2)*x0+2*t*(1-t)*x1+Math.pow(t,2)*x2;
-                ypos = Math.pow((1-t),2)*y0+2*t*(1-t)*y1+Math.pow(t,2)*y2;
-
-
-                context.lineTo(xpos, ypos);
-                context.stroke();
+                arrow.draw(context);
             }());
         };
+
 
     </script>
 </body>

@@ -25,15 +25,17 @@
 
         window.onload = function () {
             context = canvas.getContext('2d'),
-                mouse = utils.captureMouse(canvas),
-                x0 = 100,
-                y0 = 200,
-                x1=450,
-                y1=300,
+                xpos=100,
+                ypos=200,
                 t=0,
-                xpos=0,
-                ypos=0,
-                x2 = 200,
+
+                x0 = 100,                   //起点
+                y0 = 200,
+
+                x1=450,                     //控制点
+                y1=300,
+
+                x2 = 200,                   //终点
                 y2 = 400;
 
             (function drawFrame () {

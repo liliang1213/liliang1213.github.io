@@ -2,10 +2,10 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>怪物正弦运动</title>
+    <title>沿曲线运动</title>
     <meta name="viewport" content="width=device-width,user-scalable=0,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0">
     <style type="text/css">
-        body  {margin:0;padding:0;font-size:0;background-color:black;overflow:hidden;}
+        body  {margin:0;padding:0;font-size:0;overflow:hidden;background-color: black}
         canvas{overflow:hidden;}
     </style>
 </head>
@@ -24,6 +24,7 @@
             canvas.height=utils.getScreenSize().h;
         }
 
+
         window.onload = function () {
             var image=new Image();
 
@@ -35,11 +36,20 @@
             function draw(){
                 var context = canvas.getContext('2d'),
                     monster = new Monster(image),
-                    vx=3,
-                    angleX=0,
-                    angleY = 0;
-                monster.x = canvas.width/2;
-                monster.y = canvas.height/2;
+                    xpos=100,
+                    ypos=200,
+                    t=0,
+
+                    x0 = 100,                   //起点
+                    y0 = 200,
+
+                    x1=450,                     //控制点
+                    y1=300,
+
+                    x2 = 200,                   //终点
+                    y2 = 400;
+                    monster.x = xpos;
+                    monster.y = ypos;
 //                monster.rotation=90*Math.PI/180;
 
                 monster.draw(context);
@@ -48,11 +58,16 @@
                     window.requestAnimationFrame(drawFrame, canvas);
                     context.clearRect(0, 0, canvas.width, canvas.height);
 
-                monster.y = canvas.height / 2 + Math.sin(angleY) * 50;
-            /*    monster.x = canvas.width / 2 + Math.sin(angleX) * 50;          //双向正弦运动
-                    angleX += 0.07;*/
-//                monster.x+=vx;                   //垂直正弦运动
-                    angleY += 0.1;
+                    if(t<1){
+                        t += 0.01;
+                    }
+
+                    //二次贝塞尔曲线公式
+                    xpos = Math.pow((1-t),2)*x0+2*t*(1-t)*x1+Math.pow(t,2)*x2;
+                    ypos = Math.pow((1-t),2)*y0+2*t*(1-t)*y1+Math.pow(t,2)*y2;
+
+                    monster.x = xpos;
+                    monster.y = ypos;
 
                     monster.draw(context);
                 }());

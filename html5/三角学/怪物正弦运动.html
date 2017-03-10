@@ -2,11 +2,11 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>怪物正弦运动</title>
+    <title>小球正弦运动</title>
     <meta name="viewport" content="width=device-width,user-scalable=0,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0">
     <style type="text/css">
-        body  {margin:0;padding:0;font-size:0;overflow:hidden;}
-        canvas{overflow:hidden;background-color: black}
+        body  {margin:0;padding:0;font-size:0;background-color:black;overflow:hidden;}
+        canvas{overflow:hidden;}
     </style>
 </head>
 <body>
@@ -19,7 +19,6 @@
         canvas.width=utils.getScreenSize().w;
         canvas.height=utils.getScreenSize().h;
 
-
         window.onresize = function () {
             canvas.width=utils.getScreenSize().w;
             canvas.height=utils.getScreenSize().h;
@@ -27,31 +26,38 @@
 
         window.onload = function () {
             var image=new Image();
-            var context = canvas.getContext('2d'),
-                monster = new Monster(image),
-                vx=3,
-                yRange=5,
-                angleY = 0;
-
-            monster.x = 0;
-            monster.y = 200;
-            monster.rotation=90*Math.PI/180;
 
             image.onload=function(){
-                context.drawImage(image,monster.x,monster.y);
+                draw();
             }
-
             image.src='../img/C.png';
 
-            (function drawFrame () {
-                window.requestAnimationFrame(drawFrame, canvas);
-                context.clearRect(0, 0, canvas.width, canvas.height);
-                angleY+=0.1;
-                monster.x += vx;          //双向正弦运动
-                monster.y+=Math.sin(angleY)*yRange;
-                monster.rotation=(Math.sin(angleY)*15+90)*Math.PI/180;
+            function draw(){
+                var context = canvas.getContext('2d'),
+                    monster = new Monster(image),
+                    vx=3,
+                    angleX=0,
+                    angleY = 0;
+                monster.x = canvas.width/2;
+                monster.y = canvas.height/2;
+//                monster.rotation=90*Math.PI/180;
+
                 monster.draw(context);
-            }());
+
+                (function drawFrame () {
+                    window.requestAnimationFrame(drawFrame, canvas);
+                    context.clearRect(0, 0, canvas.width, canvas.height);
+
+                monster.y = canvas.height / 2 + Math.sin(angleY) * 50;
+            /*    monster.x = canvas.width / 2 + Math.sin(angleX) * 50;          //双向正弦运动
+                    angleX += 0.07;*/
+//                monster.x+=vx;                   //垂直正弦运动
+                    angleY += 0.1;
+
+                    monster.draw(context);
+                }());
+            }
+
         };
 
     </script>

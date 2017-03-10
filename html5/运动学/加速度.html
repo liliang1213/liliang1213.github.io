@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>鼠标跟随效果</title>
+    <title>加速度</title>
     <meta name="viewport" content="width=device-width,user-scalable=0,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0">
     <style type="text/css">
         body  {margin:0;padding:0;font-size:0;overflow:hidden;}
@@ -30,6 +30,8 @@
                 speed=5,
                 vx=0,
                 vy=0,
+                ax=0.1,
+                gravity=0.1;
                 arrow = new Arrow();
 
             arrow.x = canvas.width / 2;
@@ -42,14 +44,9 @@
                 var dx = mouse.x - arrow.x,
                     dy = mouse.y - arrow.y;
 
-                var angle=Math.atan2(dy, dx);
-
-                    vx=Math.cos(angle)*speed;
-                    vy=Math.sin(angle)*speed;
-
-
                 if(Math.abs(dy)>50||Math.abs(dx)>50){
-                    arrow.rotation = angle;
+                    vx+=ax;                           //加速度
+//                    vy+=gravity;                    //重力加速度
                     arrow.x+=vx;
                     arrow.y+=vy;
                 }

@@ -2,22 +2,23 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>鼠标跟随效果</title>
+    <title>怪物正弦运动</title>
     <meta name="viewport" content="width=device-width,user-scalable=0,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0">
     <style type="text/css">
         body  {margin:0;padding:0;font-size:0;overflow:hidden;}
-        canvas{overflow:hidden;}
+        canvas{overflow:hidden;background-color: black}
     </style>
 </head>
 <body>
     <canvas id="canvas" ></canvas>
     <script src="../utils/utils.js"></script>
-    <script src="../classes/arrow.js"></script>
+    <script src="../classes/monster.js"></script>
     <script>
         var canvas;
         canvas = document.getElementById('canvas');
         canvas.width=utils.getScreenSize().w;
         canvas.height=utils.getScreenSize().h;
+
 
         window.onresize = function () {
             canvas.width=utils.getScreenSize().w;
@@ -25,38 +26,33 @@
         }
 
         window.onload = function () {
+            var image=new Image();
             var context = canvas.getContext('2d'),
-                mouse = utils.captureMouse(canvas),
-                speed=5,
-                vx=0,
-                vy=0,
-                arrow = new Arrow();
+                monster = new Monster(image),
+                vx=3,
+                yRange=5,
+                angleY = 0;
 
-            arrow.x = canvas.width / 2;
-            arrow.y = canvas.height / 2;
+            monster.x = 0;
+            monster.y = 200;
+            monster.rotation=90*Math.PI/180;
+
+            image.onload=function(){
+                context.drawImage(image,monster.x,monster.y);
+            }
+
+            image.src='../img/C.png';
 
             (function drawFrame () {
                 window.requestAnimationFrame(drawFrame, canvas);
                 context.clearRect(0, 0, canvas.width, canvas.height);
-
-                var dx = mouse.x - arrow.x,
-                    dy = mouse.y - arrow.y;
-
-                var angle=Math.atan2(dy, dx);
-
-                    vx=Math.cos(angle)*speed;
-                    vy=Math.sin(angle)*speed;
-
-
-                if(Math.abs(dy)>50||Math.abs(dx)>50){
-                    arrow.rotation = angle;
-                    arrow.x+=vx;
-                    arrow.y+=vy;
-                }
-                arrow.draw(context);
+                angleY+=0.1;
+                monster.x += vx;          //双向正弦运动
+                monster.y+=Math.sin(angleY)*yRange;
+                monster.rotation=(Math.sin(angleY)*15+90)*Math.PI/180;
+                monster.draw(context);
             }());
         };
-
 
     </script>
 </body>

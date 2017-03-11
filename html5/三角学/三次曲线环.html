@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>沿曲线运动</title>
+    <title>三次曲线环</title>
     <meta name="viewport" content="width=device-width,user-scalable=0,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0">
     <style type="text/css">
         body  {margin:0;padding:0;font-size:0;overflow:hidden;}
@@ -24,20 +24,23 @@
         }
 
         window.onload = function () {
-            context = canvas.getContext('2d'),
-                xpos=100,
-                ypos=200,
-
+            var context = canvas.getContext('2d'),
                 t=0,
 
-                x0 = 100,                   //起点
-                y0 = 200,
+                xpos= canvas.width*1/5,
+                ypos=canvas.height,
 
-                x1=450,                     //控制点
-                y1=300,
+                x0 = canvas.width*1/5,                   //起点
+                y0 = canvas.height,
 
-                x2 = 200,                   //终点
-                y2 = 400;
+                x1=canvas.width,                     //控制点
+                y1=0,
+
+                x2 = 0,                   //控制点
+                y2 = 0,
+
+                x3 = canvas.width*4/5,                   //终点
+                y3 = canvas.height;
 
             (function drawFrame () {
                 window.requestAnimationFrame(drawFrame, canvas);
@@ -50,10 +53,17 @@
                     t += 0.01;
                 }
 
-                //二次贝塞尔曲线公式
-                xpos = Math.pow((1-t),2)*x0+2*t*(1-t)*x1+Math.pow(t,2)*x2;
-                ypos = Math.pow((1-t),2)*y0+2*t*(1-t)*y1+Math.pow(t,2)*y2;
+                var cx = 3 * ( x1 - x0 ),
+                    bx = 3 * ( x2 - x1 ) - cx,
+                    ax = x3 - x0 - cx - bx,
 
+                    cy = 3 * ( y1 - y0 ),
+                    by = 3 * ( y2 - y1 ) - cy,
+                    ay = y3 - y0 - cy - by;
+
+                //三次贝塞尔曲线公式
+                xpos = ax*Math.pow(t,3)+bx*Math.pow(t,2)+cx*t+x0;
+                ypos = ay*Math.pow(t,3)+by*Math.pow(t,2)+cy*t+y0;
 
                 context.lineTo(xpos, ypos);
                 context.stroke();

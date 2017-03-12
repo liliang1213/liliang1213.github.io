@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>边界</title>
+    <title>反弹损耗</title>
     <meta name="viewport" content="width=device-width,user-scalable=0,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0">
     <style type="text/css">
         body  {margin:0;padding:0;font-size:0;overflow:hidden;}
@@ -34,7 +34,7 @@
             top=0,
             gravity=0.1,
             friction=0.99,
-            bounce = -1,
+            bounce = -0.7,
             bottom=canvas.height,
             left=0,
             right=canvas.width;
@@ -44,7 +44,7 @@
             window.requestAnimationFrame(drawFrame, canvas);
             context.clearRect(0, 0, canvas.width, canvas.height);
 
-//            vy+=gravity;
+            vy+=gravity;
 
            /* vy*=friction;                 摩擦力
             vx*=friction;*/

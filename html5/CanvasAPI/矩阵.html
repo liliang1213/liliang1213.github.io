@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>矩阵</title>
+    <meta name="viewport" content="width=device-width,user-scalable=0,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0">
+    <style type="text/css">
+        body  {margin:0;padding:0;font-size:0;overflow:hidden;}
+        canvas{overflow:hidden;}
+    </style>
+</head>
+<body>
+    <canvas id="canvas" ></canvas>
+    <script src="../utils/utils.js"></script>
+    <script>
+        var canvas;
+        canvas = document.getElementById('canvas');
+        canvas.width=utils.getScreenSize().w;
+        canvas.height=utils.getScreenSize().h;
+        window.onload = function () {
+            var context = canvas.getContext('2d');
+
+            var image=new Image();
+
+            image.onload=function(){
+                context.drawImage(image,0,0);
+
+                var imageData = context.getImageData(0, 0, canvas.width, canvas.height),
+                    pixels = imageData.data;
+
+                   var matrix=[[1,0,0,0,0],            //原图
+                             [0,1,0,0,0],
+                             [0,0,1,0,0],
+                             [0,0,0,1,0]];
+
+               /* var matrix=[[1,0,0,0,100],            //亮色
+                            [0,1,0,0,100],
+                            [0,0,1,0,100],
+                            [0,0,0,1,0]];*/
+
+              /*  var matrix=[[1,0,0,0,-100],            //暗色
+                              [0,1,0,0,-100],
+                             [0,0,1,0,-100],
+                             [0,0,0,1,0]];*/
+
+              /*  var matrix=[[5,0,0,0,0],            //高对比度
+                            [0,5,0,0,0],
+                            [0,0,5,0,0],
+                            [0,0,0,1,0]];*/
+
+             /*   var matrix=[[0.2,0,0,0,0],            //低对比度
+                            [0,0.2,0,0,0],
+                            [0,0,0.2,0,0],
+                            [0,0,0,0.2,0]];*/
+
+               for (var offset = 0, len = pixels.length; offset < len; offset += 4) {
+                    var r = pixels[offset],
+                        g = pixels[offset + 1],
+                        b = pixels[offset + 2];
+
+                    pixels[offset]=matrix[0][0]*r+matrix[0][1]*g+matrix[0][2]*b+matrix[0][4];
+                    pixels[offset+1]=matrix[1][0]*r+matrix[1][1]*g+matrix[1][2]*b+matrix[1][4];
+                    pixels[offset+2]=matrix[2][0]*r+matrix[2][1]*g+matrix[2][2]*b+matrix[2][4];
+                }
+                context.putImageData(imageData, 0, 0);
+            }
+            image.src='../img/color.png';
+        };
+    </script>
+</body>
+</html>

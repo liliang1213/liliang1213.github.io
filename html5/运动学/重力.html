@@ -12,7 +12,7 @@
 <body>
 <canvas id="canvas" ></canvas>
 <script src="../utils/utils.js"></script>
-<script src="../classes/ball.js"></script>
+<script src="../classes/monster.js"></script>
 <script>
     var canvas;
     canvas = document.getElementById('canvas');
@@ -25,25 +25,37 @@
     }
 
     window.onload = function () {
-        var context = canvas.getContext('2d'),
-            ball = new Ball(),
-            centerX = canvas.width / 2,
-            centerY = canvas.height / 2,
-            gravity=0.1,
-            vy=1,
-            speed = 0.05;
-        ball.x=centerX;
-        ball.y=centerY;
-        (function drawFrame () {
-            window.requestAnimationFrame(drawFrame, canvas);
-            context.clearRect(0, 0, canvas.width, canvas.height);
+        var
+            image=new Image();
 
-            vy+=gravity;
-            ball.y += vy;
-            ball.draw(context);
-        }());
+        image.onload=function(){
+            draw();
+        }
+        image.src='../img/C.png';
+
+        function draw(){
+            var context = canvas.getContext('2d'),
+                gravity=0.1,
+                vy=0,
+                monster = new Monster(image);
+            monster.x = canvas.width/2;
+            monster.y = canvas.height/2;
+
+            monster.draw(context);
+
+            (function drawFrame () {
+                window.requestAnimationFrame(drawFrame, canvas);
+                context.clearRect(0, 0, canvas.width, canvas.height);
+
+                vy+=gravity;
+                monster.y += vy;
+                monster.draw(context);
+
+                monster.draw(context);
+            }());
+        }
+
     };
-
 </script>
 </body>
 </html>

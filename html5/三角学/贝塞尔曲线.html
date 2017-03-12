@@ -34,11 +34,11 @@
             canvas.addEventListener('mousemove', function () {
                 context.clearRect(0, 0, canvas.width, canvas.height);
 
-            /*    var x1 = mouse.x,
-                    y1 = mouse.y;*/
+                var x1 = mouse.x,
+                    y1 = mouse.y;
 
-                var x1 = mouse.x * 2 - (x0 + x2) / 2,
-                    y1 = mouse.y * 2 - (y0 + y2) / 2;
+              /*  var x1 = mouse.x * 2 - (x0 + x2) / 2,                 //经过鼠标
+                    y1 = mouse.y * 2 - (y0 + y2) / 2;*/
 
                 context.beginPath();
                 context.moveTo(x0, y0);

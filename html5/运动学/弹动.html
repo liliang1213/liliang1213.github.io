@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>弹动</title>
+    <meta name="viewport" content="width=device-width,user-scalable=0,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0">
+    <style type="text/css">
+        body  {margin:0;padding:0;font-size:0;background-color:black;overflow:hidden;}
+        canvas{overflow:hidden;}
+    </style>
+</head>
+<body>
+<canvas id="canvas" ></canvas>
+<script src="../utils/utils.js"></script>
+<script src="../classes/monster.js"></script>
+<script>
+    var canvas;
+    canvas = document.getElementById('canvas');
+    canvas.width=utils.getScreenSize().w;
+    canvas.height=utils.getScreenSize().h;
+
+    window.onresize = function () {
+        canvas.width=utils.getScreenSize().w;
+        canvas.height=utils.getScreenSize().h;
+    }
+
+    window.onload = function () {
+        var
+            image=new Image();
+
+        image.onload=function(){
+            draw();
+        }
+        image.src='../img/C.png';
+
+        function draw(){
+            var context = canvas.getContext('2d'),
+                mouse = utils.captureMouse(canvas),
+                spring=0.03,
+                friction=0.95,
+                gravity=5,
+                vx=0,
+                vy=0,
+                monster = new Monster(image);
+            monster.x = canvas.width/2;
+            monster.y = canvas.height/2;
+
+            monster.draw(context);
+
+            (function drawFrame() {
+                window.requestAnimationFrame(drawFrame, canvas);
+                context.clearRect(0, 0, canvas.width, canvas.height);
+
+                var dx = mouse.x - monster.x,
+                    dy = mouse.y - monster.y;
+
+                var ax=dx*spring,
+                    ay=dy*spring;
+
+                vx+=ax;
+                vy+=ay;
+//              vy+=gravity;
+
+                vx*=friction;
+                vy*=friction;
+
+                monster.x += vx;
+                monster.y += vy;
+
+                monster.draw(context);
+              /*  context.strokeStyle='#ffffff';
+                context.beginPath();
+                context.moveTo(mouse.x,mouse.y);
+                context.lineTo(monster.x,monster.y-monster.width/2);
+                context.stroke();
+*/
+            }());
+        }
+
+    };
+</script>
+</body>
+</html>

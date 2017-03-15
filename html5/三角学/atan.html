@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>atan2</title>
+    <title>atan</title>
     <meta name="viewport" content="width=device-width,user-scalable=0,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0">
     <style type="text/css">
         body  {margin:0;padding:0;font-size:0;overflow:hidden;}
@@ -39,7 +39,7 @@
                 var dx = mouse.x - arrow.x,
                     dy = mouse.y - arrow.y;
 
-                arrow.rotation = Math.atan2(dy, dx);
+                arrow.rotation = Math.atan(dy/dx); //Math.atan2(dy, dx);
                 arrow.draw(context);
             }());
         };

@@ -51,6 +51,9 @@
                 monster.y = canvas.height / 2 + Math.sin(angleY) * 50;
                 monster.rotation=(90+Math.cos(angleY)*15)*Math.PI/180;
                 monster.x+=vx;                   //垂直正弦运动
+                    if(monster.x>canvas.width){
+                        monster.x=0;
+                    }
                 angleY += 0.1;
                 monster.draw(context);
                 }());

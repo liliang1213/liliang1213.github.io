@@ -5,41 +5,154 @@
     <title>Title</title>
 </head>
 <body>
-
-<script type="text/javascript" src="./js/sea.js"></script>
+<canvas id="canvas" height="400" width="400"/>
 <script>
-    seajs.use('./js/main.js',function(){
-        var engine = Engine.create();
-        var render = Render.create({engine: engine});
-        Render.run(render)
-    });
-</script>
-<script>
-  /*  var Engine = Matter.Engine,
-            Render = Matter.Render,
-            World = Matter.World,
-            Vertices=Matter.Vertices,
-            Bodies = Matter.Bodies;
+    var canvas = document.getElementById('canvas'),
+            ctx = canvas.getContext('2d'),
+            height = 400,
+            width = 400,
+            b = -1,
+            angularB = -7,
+            dt = 0.02;
 
-    // create an engine
-    var engine = Engine.create();*/
+    var V = function(x, y) {
+        this.x = x;
+        this.y = y;
+    };
 
-    // create a renderer
+    V.prototype.add = function(v) {
+        return new V(v.x + this.x, v.y + this.y);
+    };
 
+    V.prototype.subtract = function(v) {
+        return new V(this.x - v.x, this.y - v.y);
+    };
 
-    // create two boxes and a ground
-//    var boxA = Bodies.rectangle(400, 200, 80, 80);
- /*   var arrowVec = Vertices.fromPath('100 0 205 50 100 400 25 400 0 50 25 0');
-    var ground = Bodies.rectangle(400, 610, 810, 60, { isStatic: true });
-    var arrow=Bodies.fromVertices(400, 200,arrowVec);
-    // add all of the bodies to the world
-    World.add(engine.world, [arrow, ground]);
+    V.prototype.mult = function(s) {
+        return new V(this.x * s, this.y * s);
+    };
 
-    // run the engine
-    Engine.run(engine);
+    V.prototype.dot = function(v) {
+        return (this.x * v.x + this.y * v.y);
+    };
 
-    // run the renderer
-    Render.run(render);*/
+    V.prototype.cross = function(v) {
+        return (this.x * v.y - this.y * v.x);
+    };
+
+    V.prototype.rotate = function(angle, vector) {
+        var x = this.x - vector.x;
+        var y = this.y - vector.y;
+
+        var x_prime = vector.x + ((x * Math.cos(angle)) - (y * Math.sin(angle)));
+        var y_prime = vector.y + ((x * Math.sin(angle)) + (y * Math.cos(angle)));
+
+        return new V(x_prime, y_prime);
+    };
+
+    var Rect = function(x, y, w, h, m) {
+        if (typeof(m) === 'undefined') {
+            this.m = 1;
+        }
+
+        this.width = w;
+        this.height = h;
+
+        this.topLeft = new V(x, y);
+        this.topRight = new V(x + w, y);
+        this.bottomRight = new V(x + w, y + h);
+        this.bottomLeft = new V(x, y + h);
+
+        this.v = new V(0, 0);
+        this.a = new V(0, 0);
+        this.theta = 0;
+        this.omega = 0;
+        this.alpha = 0;
+        this.J = this.m * (this.height*this.height + this.width*this.width) / 12000;
+    };
+
+    Rect.prototype.center = function() {
+        var diagonal = this.bottomRight.subtract(this.topLeft);
+        var midpoint = this.topLeft.add(diagonal.mult(0.5));
+        return midpoint;
+    };
+
+    Rect.prototype.rotate = function(angle) {
+        this.theta += angle;
+        var center = this.center();
+
+        this.topLeft = this.topLeft.rotate(angle, center);
+        this.topRight = this.topRight.rotate(angle, center);
+        this.bottomRight = this.bottomRight.rotate(angle, center);
+        this.bottomLeft = this.bottomLeft.rotate(angle, center);
+
+        return this;
+    };
+
+    Rect.prototype.move = function(v) {
+        this.topLeft = this.topLeft.add(v);
+        this.topRight = this.topRight.add(v);
+        this.bottomRight = this.bottomRight.add(v);
+        this.bottomLeft = this.bottomLeft.add(v);
+
+        return this;
+    }
+
+    var rect = new Rect(200, 0, 100, 50);
+    rect.v = new V(2, 0);
+    var spring = new V(200, 0);
+
+    ctx.strokeStyle = 'black';
+
+    var loop = function() {
+        var f = new V(0, 0);
+        var torque = 0;
+
+        var dr = rect.v.mult(dt).add(rect.a.mult(0.5 * dt * dt));
+        rect.move(dr.mult(100));
+
+        f = f.add(new V(0, rect.m * 9.81));
+
+        f = f.add( rect.v.mult(b) );
+
+        var springForce = spring.subtract(rect.topLeft);
+        var r = rect.topLeft.subtract(rect.center());
+        var rxf = r.cross(springForce);
+
+        torque += rxf;
+        f = f.add(springForce);
+
+        var new_a = f.mult(rect.m);
+        var dv = rect.a.add(new_a).mult(0.5 * dt);
+        rect.v = rect.v.add(dv);
+
+        torque += rect.omega * angularB;
+        rect.alpha = torque / rect.J;
+        rect.omega += rect.alpha * dt;
+        var deltaTheta = rect.omega * dt;
+        rect.rotate(deltaTheta);
+
+        draw();
+    };
+
+    var draw = function() {
+        ctx.strokeStyle = 'black';
+        ctx.clearRect(0, 0, width, height);
+        ctx.save();
+        ctx.translate(rect.topLeft.x, rect.topLeft.y);
+        ctx.rotate(rect.theta);
+        ctx.strokeRect(0, 0, rect.width, rect.height);
+        ctx.restore();
+
+        ctx.strokeStyle = '#cccccc';
+        ctx.beginPath();
+        ctx.moveTo(spring.x,spring.y);
+        ctx.lineTo(rect.topLeft.x, rect.topLeft.y);
+        ctx.stroke();
+        ctx.closePath();
+    };
+
+    setInterval(loop, dt*1000);
 </script>
 </body>
 </html>

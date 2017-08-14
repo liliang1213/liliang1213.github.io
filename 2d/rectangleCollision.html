@@ -20,6 +20,18 @@
         b = -1,
         angularB = -1,
         dt = 0.02;
+
+    var Vector={
+        magnitude:function(vector){
+            return Math.sqrt((vector.x * vector.x) + (vector.y * vector.y));
+        },
+        normalise :function(vector) {
+            var magnitude = Vector.magnitude(vector);
+            if (magnitude === 0)
+                return { x: 0, y: 0 };
+            return { x: vector.x / magnitude, y: vector.y / magnitude };
+        }
+    }
     Array.prototype.max = function() {
         return Math.max.apply(null, this);
     };
@@ -69,6 +81,7 @@
 
         return new V(x_prime, y_prime);
     };
+
     var Rect = function(x, y, w, h, m) {
         if (typeof(m) === 'undefined') {
             this.m = 1;
@@ -84,6 +97,7 @@
         this.bottomRight = new V(x + w, y + h);
         this.bottomLeft = new V(x, y + h);
 
+        this.setVertice(this.topLeft,this.topRight,this.bottomRight,this.bottomLeft);
         this.v = new V(0, 0);
         this.a = new V(0, 0);
         this.theta = 0;
@@ -91,6 +105,10 @@
         this.alpha = 0;
         this.J = this.m * (this.height * this.height + this.width * this.width) / 12000;
     };
+
+    Rect.prototype.setVertice=function(topLeft,topRight,bottomRight,bottomLeft){
+        this.vertices=[topLeft,topRight,bottomRight,bottomLeft];
+    }
 
     Rect.prototype.center = function() {
         var diagonal = this.bottomRight.subtract(this.topLeft);
@@ -106,7 +124,7 @@
         this.topRight = this.topRight.rotate(angle, center);
         this.bottomRight = this.bottomRight.rotate(angle, center);
         this.bottomLeft = this.bottomLeft.rotate(angle, center);
-
+        this.setVertice(this.topLeft,this.topRight,this.bottomRight,this.bottomLeft);
         return this;
     };
 
@@ -115,7 +133,7 @@
         this.topRight = this.topRight.add(v);
         this.bottomRight = this.bottomRight.add(v);
         this.bottomLeft = this.bottomLeft.add(v);
-
+        this.setVertice(this.topLeft,this.topRight,this.bottomRight,this.bottomLeft);
         return this;
     };
 
@@ -127,6 +145,7 @@
         ctx.strokeRect(0, 0, this.width, this.height);
         ctx.restore();
     };
+
     Rect.prototype.vertex = function(id)
     {
         if (id == 0)
@@ -146,23 +165,27 @@
             return this.bottomLeft;
         }
     };
-    function intersect_safe(a, b)
-    {
-        var result = new Array();
 
-        var as = a.map( function(x) {return x.toString(); });
-        var bs = b.map( function(x) { return x.toString(); });
-        for (var i in as)
-        {
-            if (bs.indexOf(as[i]) !== -1)
-            {
-                result.push( a[i] );
-            }
+    Rect.prototype.getAxes=function(vertices){
+        var axes = [];
+
+        // find the unique axes, using edge normal gradients
+        for (var i = 0; i < vertices.length; i++) {
+            var j = (i + 1) % vertices.length,
+                    normal = Vector.normalise({
+                        x: vertices[j].y - vertices[i].y,
+                        y: vertices[i].x - vertices[j].x
+                    }),
+                    gradient = (normal.y === 0) ? Infinity : (normal.x / normal.y);
+
+            // limit precision
+            gradient = gradient.toFixed(3).toString();
+            axes.push(normal);
         }
 
-        return result;
+        return axes;
     }
-
+    
     satTest = function(a, b) {
         var testVectors = [
             a.topRight.subtract(a.topLeft),
@@ -170,6 +193,9 @@
             b.topRight.subtract(b.topLeft),
             b.bottomRight.subtract(b.topRight),
         ];
+
+        console.info(a.getAxes(a.vertices), 'a.getAxes(a.vertices)');
+
         var ainvolvedVertices = [];
         var binvolvedVertices = [];
 
@@ -191,7 +217,6 @@
             // If it's in the range, add this vertex to a list
             for (var j in foreignProjections) {
                 if (foreignProjections[j] > myProjections.min() && foreignProjections[j] < myProjections.max()) {
-                    console.log(j,'bj')
                     binvolvedVertices[i].push(b.vertex(j));
                 }
             }
@@ -200,13 +225,11 @@
             // If it's in the range, add the vertex to the list
             for (var j in myProjections) {
                 if (myProjections[j] > foreignProjections.min() && myProjections[j] < foreignProjections.max()) {
-                    console.log(j,'j')
-                    console.log(a.vertex(j),'a.vertex(j)')
-                    debugger;
                     ainvolvedVertices[i].push(a.vertex(j));
                 }
             }
         }
+//        debugger;
 //         console.log( intersect_safe ( intersect_safe( involvedVertices[0], involvedVertices[1] ), intersect_safe( involvedVertices[2], involvedVertices[3] ) ) );
         ainvolvedVertices = intersect_safe(intersect_safe(ainvolvedVertices[0], ainvolvedVertices[1]), intersect_safe(ainvolvedVertices[2], ainvolvedVertices[3]));
         binvolvedVertices = intersect_safe(intersect_safe(binvolvedVertices[0], binvolvedVertices[1]), intersect_safe(binvolvedVertices[2], binvolvedVertices[3]));
@@ -214,7 +237,6 @@
          If we have two vertices from one rect and one vertex from the other, probably the single vertex is penetrating the segment
          return involvedVertices;
          */
-
         if (ainvolvedVertices.length === 1 && binvolvedVertices.length === 2)
         {
             return ainvolvedVertices[0];
@@ -250,6 +272,22 @@
 
         return true;
 
+    }
+    function intersect_safe(a, b)
+    {
+        var result = new Array();
+
+        var as = a.map( function(x) {return x.toString(); });
+        var bs = b.map( function(x) { return x.toString(); });
+        for (var i in as)
+        {
+            if (bs.indexOf(as[i]) !== -1)
+            {
+                result.push( a[i] );
+            }
+        }
+
+        return result;
     }
 
     var rect = new Rect(200, 0, 100, 50);

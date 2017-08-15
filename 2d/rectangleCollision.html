@@ -30,6 +30,15 @@
             if (magnitude === 0)
                 return { x: 0, y: 0 };
             return { x: vector.x / magnitude, y: vector.y / magnitude };
+        },
+        dot : function(vectorA, vectorB) {
+            return (vectorA.x * vectorB.x) + (vectorA.y * vectorB.y);
+        },
+        sub : function(vectorA, vectorB, output) {
+            if (!output) output = {};
+            output.x = vectorA.x - vectorB.x;
+            output.y = vectorA.y - vectorB.y;
+            return output;
         }
     }
     Array.prototype.max = function() {
@@ -96,8 +105,8 @@
         this.topRight = new V(x + w, y);
         this.bottomRight = new V(x + w, y + h);
         this.bottomLeft = new V(x, y + h);
-
         this.setVertice(this.topLeft,this.topRight,this.bottomRight,this.bottomLeft);
+        this.axes=this.getAxes(this.vertices);
         this.v = new V(0, 0);
         this.a = new V(0, 0);
         this.theta = 0;
@@ -125,6 +134,7 @@
         this.bottomRight = this.bottomRight.rotate(angle, center);
         this.bottomLeft = this.bottomLeft.rotate(angle, center);
         this.setVertice(this.topLeft,this.topRight,this.bottomRight,this.bottomLeft);
+        this.axes=this.getAxes(this.vertices);
         return this;
     };
 
@@ -134,6 +144,7 @@
         this.bottomRight = this.bottomRight.add(v);
         this.bottomLeft = this.bottomLeft.add(v);
         this.setVertice(this.topLeft,this.topRight,this.bottomRight,this.bottomLeft);
+        this.axes=this.getAxes(this.vertices);
         return this;
     };
 
@@ -144,26 +155,6 @@
         ctx.rotate(this.theta);
         ctx.strokeRect(0, 0, this.width, this.height);
         ctx.restore();
-    };
-
-    Rect.prototype.vertex = function(id)
-    {
-        if (id == 0)
-        {
-            return this.topLeft;
-        }
-        else if (id == 1)
-        {
-            return this.topRight;
-        }
-        else if (id == 2)
-        {
-            return this.bottomRight;
-        }
-        else if (id == 3)
-        {
-            return this.bottomLeft;
-        }
     };
 
     Rect.prototype.getAxes=function(vertices){
@@ -185,109 +176,110 @@
 
         return axes;
     }
+
+    var _overlapAxes = function(verticesA, verticesB, axes) {
+        var projectionA = new V(0,0),
+                projectionB =new V(0,0),
+                result = { overlap: Number.MAX_VALUE },
+                overlap,
+                axis;
+
+        for (var i = 0; i < axes.length; i++) {
+            axis = axes[i];
+
+            _projectToAxis(projectionA, verticesA, axis);
+            _projectToAxis(projectionB, verticesB, axis);
+
+            overlap = Math.min(projectionA.max - projectionB.min, projectionB.max - projectionA.min);
+
+            if (overlap <= 0) {
+                result.overlap = overlap;
+                return result;
+            }
+
+            if (overlap < result.overlap) {
+                result.overlap = overlap;
+                result.axis = axis;
+                result.axisNumber = i;
+            }
+        }
+        return result;
+    };
+
+    var _projectToAxis = function(projection, vertices, axis) {
+        var min = Vector.dot(vertices[0], axis),
+                max = min;
+
+        for (var i = 1; i < vertices.length; i += 1) {
+            var dot = Vector.dot(vertices[i], axis);
+
+            if (dot > max) {
+                max = dot;
+            } else if (dot < min) {
+                min = dot;
+            }
+        }
+
+        projection.min = min;
+        projection.max = max;
+    };
+
+    var _findSupports = function(bodyA, bodyB, normal) {
+        var nearestDistance = Number.MAX_VALUE,
+                vertexToBody = new V(0,0),
+                vertices = bodyB.vertices,
+                bodyAPosition = bodyA.center(),
+                distance,
+                vertex,
+                vertexA,
+                vertexB;
+        // find closest vertex on bodyB
+        for (var i = 0; i < vertices.length; i++) {
+            vertex = vertices[i];
+            vertexToBody.x = vertex.x - bodyAPosition.x;
+            vertexToBody.y = vertex.y - bodyAPosition.y;
+            distance = -Vector.dot(normal, vertexToBody);
+
+            if (distance < nearestDistance) {
+                nearestDistance = distance;
+                vertexA = vertex;
+            }
+        }
+        return vertexA;
+    };
     
     satTest = function(a, b) {
-        var testVectors = [
-            a.topRight.subtract(a.topLeft),
-            a.bottomRight.subtract(a.topRight),
-            b.topRight.subtract(b.topLeft),
-            b.bottomRight.subtract(b.topRight),
-        ];
+        var overlapAB = _overlapAxes(a.vertices, b.vertices, a.axes);
+        var minOverlap,normal;
 
-        console.info(a.getAxes(a.vertices), 'a.getAxes(a.vertices)');
-
-        var ainvolvedVertices = [];
-        var binvolvedVertices = [];
-
-        /*
-         * Look at each test vector (shadows)
-         */
-        for (var i = 0; i < 4; i++) {
-            ainvolvedVertices[i] = []; // Our container for involved vertces
-            binvolvedVertices[i] = []; // Our container for involved vertces
-            var myProjections = [];
-            var foreignProjections = [];
-
-            for (var j = 0; j < 4; j++) {
-                myProjections.push(testVectors[i].dot(a.vertex(j)));
-                foreignProjections.push(testVectors[i].dot(b.vertex(j)));
-            }
-
-            // Loop through foreignProjections, and test if each point is x lt my.min AND x gt m.max
-            // If it's in the range, add this vertex to a list
-            for (var j in foreignProjections) {
-                if (foreignProjections[j] > myProjections.min() && foreignProjections[j] < myProjections.max()) {
-                    binvolvedVertices[i].push(b.vertex(j));
-                }
-            }
-
-            // Loop through myProjections and test if each point is x gt foreign.min and x lt foreign.max
-            // If it's in the range, add the vertex to the list
-            for (var j in myProjections) {
-                if (myProjections[j] > foreignProjections.min() && myProjections[j] < foreignProjections.max()) {
-                    ainvolvedVertices[i].push(a.vertex(j));
-                }
-            }
-        }
-//        debugger;
-//         console.log( intersect_safe ( intersect_safe( involvedVertices[0], involvedVertices[1] ), intersect_safe( involvedVertices[2], involvedVertices[3] ) ) );
-        ainvolvedVertices = intersect_safe(intersect_safe(ainvolvedVertices[0], ainvolvedVertices[1]), intersect_safe(ainvolvedVertices[2], ainvolvedVertices[3]));
-        binvolvedVertices = intersect_safe(intersect_safe(binvolvedVertices[0], binvolvedVertices[1]), intersect_safe(binvolvedVertices[2], binvolvedVertices[3]));
-        /*
-         If we have two vertices from one rect and one vertex from the other, probably the single vertex is penetrating the segment
-         return involvedVertices;
-         */
-        if (ainvolvedVertices.length === 1 && binvolvedVertices.length === 2)
-        {
-            return ainvolvedVertices[0];
-        }
-        else if (binvolvedVertices.length === 1 && ainvolvedVertices.length === 2)
-        {
-            return binvolvedVertices[0];
-        }
-        else if (ainvolvedVertices.length === 1 && binvolvedVertices.length === 1)
-        {
-            return ainvolvedVertices[0];
-        }
-        else if (ainvolvedVertices.length === 1 && binvolvedVertices.length === 0)
-        {
-            return ainvolvedVertices[0];
-        }
-        else if (ainvolvedVertices.length === 0 && binvolvedVertices.length === 1)
-        {
-            return binvolvedVertices[0];
-        }
-        else if (ainvolvedVertices.length === 0 && binvolvedVertices.length === 0)
-        {
+        if (overlapAB.overlap <= 0) {
             return false;
         }
-        else
-        {
-            console.log("Unknown collision profile");
-            console.log(ainvolvedVertices);
-            console.log(binvolvedVertices);
-            clearInterval(timer);
+
+        var overlapBA = _overlapAxes(a.vertices, b.vertices, b.axes);
+        if (overlapBA.overlap <= 0) {
+            return false;
         }
 
-
-        return true;
-
-    }
-    function intersect_safe(a, b)
-    {
-        var result = new Array();
-
-        var as = a.map( function(x) {return x.toString(); });
-        var bs = b.map( function(x) { return x.toString(); });
-        for (var i in as)
-        {
-            if (bs.indexOf(as[i]) !== -1)
-            {
-                result.push( a[i] );
-            }
+        if (overlapAB.overlap < overlapBA.overlap) {
+            minOverlap = overlapAB;
+        } else {
+            minOverlap = overlapBA;
         }
 
-        return result;
+        if (Vector.dot(minOverlap.axis, Vector.sub(b.center(), a.center())) < 0) {
+            normal = {
+                x: minOverlap.axis.x,
+                y: minOverlap.axis.y
+            };
+        } else {
+            normal = {
+                x: -minOverlap.axis.x,
+                y: -minOverlap.axis.y
+            };
+        }
+
+        return _findSupports(a, b, normal);
     }
 
     var rect = new Rect(200, 0, 100, 50);

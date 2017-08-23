@@ -39,8 +39,25 @@
             output.x = vectorA.x - vectorB.x;
             output.y = vectorA.y - vectorB.y;
             return output;
+        },
+        neg : function(vector) {
+           return { x: -vector.x, y: -vector.y };
         }
     }
+
+    var Vertices={
+        contains:function(vertices,point){
+            for (var i = 0; i < vertices.length; i++) {
+                var vertice = vertices[i],
+                    nextVertice = vertices[(i + 1) % vertices.length];
+                if ((point.x - vertice.x) * (nextVertice.y - vertice.y) + (point.y - vertice.y) * (vertice.x - nextVertice.x) > 0) {
+                    return false;
+                }
+            }
+            return true;
+        }
+    }
+
     Array.prototype.max = function() {
         return Math.max.apply(null, this);
     };
@@ -232,6 +249,7 @@
                 distance,
                 vertex,
                 vertexA,
+                tempIndex=0,
                 vertexB;
         // find closest vertex on bodyB
         for (var i = 0; i < vertices.length; i++) {
@@ -243,9 +261,26 @@
             if (distance < nearestDistance) {
                 nearestDistance = distance;
                 vertexA = vertex;
+                tempIndex=i;
             }
         }
-        return vertexA;
+
+        var prevIndex = tempIndex - 1 >= 0 ? tempIndex - 1 : vertices.length - 1;
+        vertex = vertices[prevIndex];
+        vertexToBody.x = vertex.x - bodyAPosition.x;
+        vertexToBody.y = vertex.y - bodyAPosition.y;
+        nearestDistance = -Vector.dot(normal, vertexToBody);
+        vertexB = vertex;
+
+        var nextIndex = (tempIndex + 1) % vertices.length;
+        vertex = vertices[nextIndex];
+        vertexToBody.x = vertex.x - bodyAPosition.x;
+        vertexToBody.y = vertex.y - bodyAPosition.y;
+        distance = -Vector.dot(normal, vertexToBody);
+        if (distance < nearestDistance) {
+            vertexB = vertex;
+        }
+        return [vertexA,vertexB];
     };
     
     satTest = function(a, b) {
@@ -279,7 +314,32 @@
             };
         }
 
-        return _findSupports(a, b, normal);
+        var verticesB = _findSupports(a, b, normal),
+            supports = [];
+
+        // find the supports from bodyB that are inside bodyA
+        if (Vertices.contains(a.vertices, verticesB[0]))
+            supports.push(verticesB[0]);
+
+        if (Vertices.contains(a.vertices, verticesB[1]))
+            supports.push(verticesB[1]);
+
+        // find the supports from bodyA that are inside bodyB
+        if (supports.length < 2) {
+            var verticesA = _findSupports(b, a, Vector.neg(normal));
+
+            if (Vertices.contains(b.vertices, verticesA[0]))
+                supports.push(verticesA[0]);
+
+            if (supports.length < 2 && Vertices.contains(b.vertices, verticesA[1]))
+                supports.push(verticesA[1]);
+        }
+
+        // account for the edge case of overlapping but no vertex containment
+        if (supports.length < 1)
+            supports = [verticesB[0]];
+
+        return supports[0];
     }
 
     var rect = new Rect(200, 0, 100, 50);
@@ -305,6 +365,7 @@
         var collision = satTest(rect, wall);
         if (collision)
         {
+            console.log(collision,'collision')
             var N = rect.center().subtract(collision); //.rotate(Math.PI , new V(0,0));
             N = N.scale( 1 / N.length());
             var Vr = rect.v;

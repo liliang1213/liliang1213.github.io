@@ -26,12 +26,11 @@
 
         window.onload = function () {
             var context = canvas.getContext('2d'),
-                angleY = 0,
-                angleX=0,
+                angleX=Math.PI,
+                angleY = Math.PI;
                 range = 50,
                 centerY = canvas.height / 2,
                 centerX = canvas.width / 2,
-                xspeed = 2,
                 xspeed = 0.07,        //双向正弦运动路径
                 yspeed = 0.1,
                 xpos = centerX,

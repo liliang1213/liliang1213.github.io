@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<canvas id="canvas" height="400" width="400"/>
+<script src="utils/utils.js"></script>
+<script>
+    /*
+     The following is not free software. You may use it for educational purposes, but you may not redistribute or use it commercially.
+     (C) Burak Kanber 2012
+     */
+    var canvas,
+        ctx,
+        height = 400,
+        width = 400,
+        stiffness = 0.5,
+        b = -1,
+        angularB = -1,
+        dt = 0.02;
+
+    var Vector={
+        magnitude:function(vector){
+            return Math.sqrt((vector.x * vector.x) + (vector.y * vector.y));
+        },
+        normalise :function(vector) {
+            var magnitude = Vector.magnitude(vector);
+            if (magnitude === 0)
+                return { x: 0, y: 0 };
+            return { x: vector.x / magnitude, y: vector.y / magnitude };
+        },
+        dot : function(vectorA, vectorB) {
+            return (vectorA.x * vectorB.x) + (vectorA.y * vectorB.y);
+        },
+        sub : function(vectorA, vectorB, output) {
+            if (!output) output = {};
+            output.x = vectorA.x - vectorB.x;
+            output.y = vectorA.y - vectorB.y;
+            return output;
+        },
+        neg : function(vector) {
+           return { x: -vector.x, y: -vector.y };
+        },
+        scale : function(vector, scalar) {
+            return { x: vector.x * scalar, y: vector.y * scalar };
+        }
+    }
+
+    var Vertices={
+        contains:function(vertices,point){
+            for (var i = 0; i < vertices.length; i++) {
+                var vertice = vertices[i],
+                    nextVertice = vertices[(i + 1) % vertices.length];
+                if ((point.x - vertice.x) * (nextVertice.y - vertice.y) + (point.y - vertice.y) * (vertice.x - nextVertice.x) > 0) {
+                    return false;
+                }
+            }
+            return true;
+        }
+    }
+
+    Array.prototype.max = function() {
+        return Math.max.apply(null, this);
+    };
+
+    Array.prototype.min = function() {
+        return Math.min.apply(null, this);
+    };
+    var V = function(x, y) {
+        this.x = x;
+        this.y = y;
+    };
+
+    V.prototype.length = function() {
+        return Math.sqrt(this.x*this.x + this.y*this.y);
+    };
+
+    V.prototype.add = function(v) {
+        return new V(v.x + this.x, v.y + this.y);
+    };
+
+    V.prototype.subtract = function(v) {
+        return new V(this.x - v.x, this.y - v.y);
+    };
+
+    V.prototype.scale = function(s) {
+        return new V(this.x * s, this.y * s);
+    };
+
+    V.prototype.dot = function(v) {
+        return (this.x * v.x + this.y * v.y);
+    };
+
+    V.prototype.cross = function(v) {
+        return (this.x * v.y - this.y * v.x);
+    };
+
+    V.prototype.toString = function() {
+        return '[' + this.x + ',' + this.y + ']';
+    };
+
+    V.prototype.rotate = function(angle, vector) {
+        var x = this.x - vector.x;
+        var y = this.y - vector.y;
+
+        var x_prime = vector.x + ((x * Math.cos(angle)) - (y * Math.sin(angle)));
+        var y_prime = vector.y + ((x * Math.sin(angle)) + (y * Math.cos(angle)));
+
+        return new V(x_prime, y_prime);
+    };
+
+    var Rect = function(x, y, w, h, m) {
+        if (typeof(m) === 'undefined') {
+            this.m = 1;
+        }
+
+        this.width = w;
+        this.height = h;
+
+        this.active = true;
+
+        this.topLeft = new V(x, y);
+        this.topRight = new V(x + w, y);
+        this.bottomRight = new V(x + w, y + h);
+        this.bottomLeft = new V(x, y + h);
+        this.setVertice(this.topLeft,this.topRight,this.bottomRight,this.bottomLeft);
+        this.axes=this.getAxes(this.vertices);
+        this.v = new V(0, 0);
+        this.a = new V(0, 0);
+        this.theta = 0;
+        this.omega = 0;
+        this.alpha = 0;
+        this.J = this.m * (this.height * this.height + this.width * this.width) / 12000;
+    };
+
+    Rect.prototype.setVertice=function(topLeft,topRight,bottomRight,bottomLeft){
+        this.vertices=[topLeft,topRight,bottomRight,bottomLeft];
+    }
+
+    Rect.prototype.center = function() {
+        var diagonal = this.bottomRight.subtract(this.topLeft);
+        var midpoint = this.topLeft.add(diagonal.scale(0.5));
+        return midpoint;
+    };
+
+    Rect.prototype.rotate = function(angle) {
+        this.theta += angle;
+        var center = this.center();
+
+        this.topLeft = this.topLeft.rotate(angle, center);
+        this.topRight = this.topRight.rotate(angle, center);
+        this.bottomRight = this.bottomRight.rotate(angle, center);
+        this.bottomLeft = this.bottomLeft.rotate(angle, center);
+        this.setVertice(this.topLeft,this.topRight,this.bottomRight,this.bottomLeft);
+        this.axes=this.getAxes(this.vertices);
+        return this;
+    };
+
+    Rect.prototype.move = function(v) {
+        this.topLeft = this.topLeft.add(v);
+        this.topRight = this.topRight.add(v);
+        this.bottomRight = this.bottomRight.add(v);
+        this.bottomLeft = this.bottomLeft.add(v);
+        this.setVertice(this.topLeft,this.topRight,this.bottomRight,this.bottomLeft);
+        this.axes=this.getAxes(this.vertices);
+        return this;
+    };
+
+    Rect.prototype.draw = function(ctx) {
+        ctx.strokeStyle = 'black';
+        ctx.save();
+        ctx.translate(this.topLeft.x, this.topLeft.y);
+        ctx.rotate(this.theta);
+        ctx.strokeRect(0, 0, this.width, this.height);
+        ctx.restore();
+    };
+
+    Rect.prototype.getAxes=function(vertices){
+        var axes = [];
+
+        // find the unique axes, using edge normal gradients
+        for (var i = 0; i < vertices.length; i++) {
+            var j = (i + 1) % vertices.length,
+                    normal = Vector.normalise({
+                        x: vertices[j].y - vertices[i].y,
+                        y: vertices[i].x - vertices[j].x
+                    }),
+                    gradient = (normal.y === 0) ? Infinity : (normal.x / normal.y);
+
+            // limit precision
+            gradient = gradient.toFixed(3).toString();
+            axes.push(normal);
+        }
+
+        return axes;
+    }
+
+    var _overlapAxes = function(verticesA, verticesB, axes) {
+        var projectionA = new V(0,0),
+                projectionB =new V(0,0),
+                result = { overlap: Number.MAX_VALUE },
+                overlap,
+                axis;
+
+        for (var i = 0; i < axes.length; i++) {
+            axis = axes[i];
+
+            _projectToAxis(projectionA, verticesA, axis);
+            _projectToAxis(projectionB, verticesB, axis);
+
+            overlap = Math.min(projectionA.max - projectionB.min, projectionB.max - projectionA.min);
+
+            if (overlap <= 0) {
+                result.overlap = overlap;
+                return result;
+            }
+
+            if (overlap < result.overlap) {
+                result.overlap = overlap;
+                result.axis = axis;
+                result.axisNumber = i;
+            }
+        }
+        return result;
+    };
+
+    var _projectToAxis = function(projection, vertices, axis) {
+        var min = Vector.dot(vertices[0], axis),
+                max = min;
+
+        for (var i = 1; i < vertices.length; i += 1) {
+            var dot = Vector.dot(vertices[i], axis);
+
+            if (dot > max) {
+                max = dot;
+            } else if (dot < min) {
+                min = dot;
+            }
+        }
+
+        projection.min = min;
+        projection.max = max;
+    };
+
+    var _findSupports = function(bodyA, bodyB, normal) {
+        var nearestDistance = Number.MAX_VALUE,
+                vertexToBody = new V(0,0),
+                vertices = bodyB.vertices,
+                bodyAPosition = bodyA.center(),
+                distance,
+                vertex,
+                vertexA,
+                tempIndex=0,
+                vertexB;
+        // find closest vertex on bodyB
+        for (var i = 0; i < vertices.length; i++) {
+            vertex = vertices[i];
+            vertexToBody.x = vertex.x - bodyAPosition.x;
+            vertexToBody.y = vertex.y - bodyAPosition.y;
+            distance = -Vector.dot(normal, vertexToBody);
+
+            if (distance < nearestDistance) {
+                nearestDistance = distance;
+                vertexA = vertex;
+                tempIndex=i;
+            }
+        }
+
+        var prevIndex = tempIndex - 1 >= 0 ? tempIndex - 1 : vertices.length - 1;
+        vertex = vertices[prevIndex];
+        vertexToBody.x = vertex.x - bodyAPosition.x;
+        vertexToBody.y = vertex.y - bodyAPosition.y;
+        nearestDistance = -Vector.dot(normal, vertexToBody);
+        vertexB = vertex;
+
+        var nextIndex = (tempIndex + 1) % vertices.length;
+        vertex = vertices[nextIndex];
+        vertexToBody.x = vertex.x - bodyAPosition.x;
+        vertexToBody.y = vertex.y - bodyAPosition.y;
+        distance = -Vector.dot(normal, vertexToBody);
+        if (distance < nearestDistance) {
+            vertexB = vertex;
+        }
+        return [vertexA,vertexB];
+    };
+    
+    satTest = function(a, b) {
+        var overlapAB = _overlapAxes(a.vertices, b.vertices, a.axes);
+        var minOverlap,normal;
+
+        if (overlapAB.overlap <= 0) {
+            return false;
+        }
+
+        var overlapBA = _overlapAxes(a.vertices, b.vertices, b.axes);
+        if (overlapBA.overlap <= 0) {
+            return false;
+        }
+
+        if (overlapAB.overlap < overlapBA.overlap) {
+            minOverlap = overlapAB;
+        } else {
+            minOverlap = overlapBA;
+        }
+
+        if (Vector.dot(minOverlap.axis, Vector.sub(b.center(), a.center())) < 0) {
+            normal = {
+                x: minOverlap.axis.x,
+                y: minOverlap.axis.y
+            };
+        } else {
+            normal = {
+                x: -minOverlap.axis.x,
+                y: -minOverlap.axis.y
+            };
+        }
+
+        var verticesB = _findSupports(a, b, normal),
+            supports = [];
+
+        // find the supports from bodyB that are inside bodyA
+        if (Vertices.contains(a.vertices, verticesB[0]))
+            supports.push(verticesB[0]);
+
+        if (Vertices.contains(a.vertices, verticesB[1]))
+            supports.push(verticesB[1]);
+
+        // find the supports from bodyA that are inside bodyB
+        if (supports.length < 2) {
+            var verticesA = _findSupports(b, a, Vector.neg(normal));
+
+            if (Vertices.contains(b.vertices, verticesA[0]))
+                supports.push(verticesA[0]);
+
+            if (supports.length < 2 && Vertices.contains(b.vertices, verticesA[1]))
+                supports.push(verticesA[1]);
+        }
+
+        // account for the edge case of overlapping but no vertex containment
+        if (supports.length < 1)
+            supports = [verticesB[0]];
+
+        return supports[0];
+    }
+
+    var rect = new Rect(200, 0, 100, 50);
+    var wall = new Rect(125, 200, 100, 50);
+    rect.omega = -10;
+
+
+    var loop = function() {
+        var f = new V(0, 0);
+        var torque = 0;
+
+        /* Start Velocity Verlet by performing the translation */
+        var dr = rect.v.scale(dt).add(rect.a.scale(0.5 * dt * dt));
+        rect.move(dr.scale(100));
+
+        /* Add Gravity */
+        f = f.add(new V(0, rect.m * 9.81));
+
+        /* Add damping */
+        f = f.add(rect.v.scale(b));
+
+        /* Handle collision */
+        var collision = satTest(rect, wall);
+        if (collision)
+        {
+            var N = rect.center().subtract(collision); //碰撞点到物体质心的距离;
+            var n = N.scale( 1 / N.length());           //碰撞点到物体质心的单位向量
+            var Vr = rect.v;
+
+            var I= n.scale((-1 * (1 + 0.3) * Vr.dot(n)/(1+(N.cross(n))*(N.cross(n))/rect.J)));
+            rect.v = I;
+            rect.omega = -1 * 0.2 * (rect.omega / Math.abs(rect.omega)) * rect.center().subtract(collision).cross(Vr);
+        }
+
+
+        /* Finish Velocity Verlet */
+        var new_a = f.scale(rect.m);
+        var dv = rect.a.add(new_a).scale(0.5 * dt);
+        rect.v = rect.v.add(dv);
+
+        /* Do rotation; let's just use Euler for contrast */
+        torque += rect.omega * angularB; // Angular damping
+        rect.alpha = torque / rect.J;
+        rect.omega += rect.alpha * dt;
+        var deltaTheta = rect.omega * dt;
+        rect.rotate(deltaTheta);
+
+        draw();
+    };
+
+    var draw = function() {
+        ctx.clearRect(0, 0, width, height);
+        rect.draw(ctx);
+        wall.draw(ctx);
+
+    };
+
+    var timer;
+
+    canvas = document.getElementById('canvas'),
+        ctx = canvas.getContext('2d'),
+        ctx.strokeStyle = 'black';
+    timer = setInterval(loop, dt * 1000);
+</script>
+</body>
+</html>

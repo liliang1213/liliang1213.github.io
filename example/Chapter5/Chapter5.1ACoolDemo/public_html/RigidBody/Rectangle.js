@@ -24,7 +24,7 @@ var Rectangle = function (center, width, height, mass, friction, restitution) {
     this.mVertex[3] = new Vec2(center.x - width / 2, center.y + height / 2);
 
     //0--Top;1--Right;2--Bottom;3--Left
-    //mFaceNormal is normal of face toward outside of rectangle
+    //mFaceNormal is normal of face toward outside of matter
     this.mFaceNormal[0] = this.mVertex[1].subtract(this.mVertex[2]);
     this.mFaceNormal[0] = this.mFaceNormal[0].normalize();
     this.mFaceNormal[1] = this.mVertex[2].subtract(this.mVertex[3]);

@@ -47,7 +47,7 @@ Rectangle.prototype.findSupportPoint = function (dir, ptOnEdge) {
 /**
  * Find the shortest axis that overlapping
  * @memberOf Rectangle
- * @param {Rectangle} otherRect  another rectangle that being tested
+ * @param {Rectangle} otherRect  another matter that being tested
  * @param {CollisionInfo} collisionInfo  record the collision information
  * @returns {Boolean} true if has overlap part in all four directions.
  * the code is convert from http://gamedevelopment.tutsplus.com/tutorials/how-to-create-a-custom-2d-physics-engine-oriented-rigid-bodies--gamedev-8032
@@ -105,7 +105,7 @@ Rectangle.prototype.collidedRectRect = function (r1, r2, collisionInfo) {
     var status1 = false;
     var status2 = false;
 
-    //find Axis of Separation for both rectangle
+    //find Axis of Separation for both matter
     status1 = r1.findAxisLeastPenetration(r2, collisionInfoR1);
 
     if (status1) {

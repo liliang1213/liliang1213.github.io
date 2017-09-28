@@ -7,13 +7,15 @@
 /*jslint node: true, vars: true, evil: true, bitwise: true */
 "use strict";
 
-var Rectangle = function (center, width, height, mass, friction, restitution) {
+/* global RigidShape */
 
-    RigidShape.call(this, center, mass, friction, restitution);
+var Rectangle = function (center, width, height, fix) {
+
+    RigidShape.call(this, center);
     this.mType = "Rectangle";
+    this.mFix = fix;
     this.mWidth = width;
     this.mHeight = height;
-    this.mBoundRadius = Math.sqrt(width * width + height * height) / 2;
     this.mVertex = [];
     this.mFaceNormal = [];
 

@@ -47,7 +47,7 @@ Rectangle.prototype.findSupportPoint = function (dir, ptOnEdge) {
 /**
  * Find the shortest axis that overlapping
  * @memberOf Rectangle
- * @param {Rectangle} otherRect  another rectangle that being tested
+ * @param {Rectangle} otherRect  another matter that being tested
  * @param {CollisionInfo} collisionInfo  record the collision information
  * @returns {Boolean} true if has overlap part in all four directions.
  * the code is convert from http://gamedevelopment.tutsplus.com/tutorials/how-to-create-a-custom-2d-physics-engine-oriented-rigid-bodies--gamedev-8032
@@ -105,7 +105,7 @@ Rectangle.prototype.collidedRectRect = function (r1, r2, collisionInfo) {
     var status1 = false;
     var status2 = false;
 
-    //find Axis of Separation for both rectangle
+    //find Axis of Separation for both matter
     status1 = r1.findAxisLeastPenetration(r2, collisionInfoR1);
 
     if (status1) {
@@ -143,7 +143,7 @@ Rectangle.prototype.collidedRectCirc = function (otherCir, collisionInfo) {
         v = circ2Pos.subtract(this.mVertex[i]);
         projection = v.dot(this.mFaceNormal[i]);
         if (projection > 0) {
-            //if the center of circle is outside of rectangle
+            //if the center of circle is outside of matter
             bestDistance = projection;
             nearestEdge = i;
             inside = false;
@@ -156,7 +156,7 @@ Rectangle.prototype.collidedRectCirc = function (otherCir, collisionInfo) {
     }
     var dis, normal, radiusVec;
     if (!inside) {
-        //the center of circle is outside of rectangle
+        //the center of circle is outside of matter
 
         //v1 is from left vertex of face to center of circle 
         //v2 is from left vertex of face to right vertex of face
@@ -204,7 +204,7 @@ Rectangle.prototype.collidedRectCirc = function (otherCir, collisionInfo) {
             }
         }
     } else {
-        //the center of circle is inside of rectangle
+        //the center of circle is inside of matter
         radiusVec = this.mFaceNormal[nearestEdge].scale(otherCir.mRadius);
         collisionInfo.setInfo(otherCir.mRadius - bestDistance, this.mFaceNormal[nearestEdge], circ2Pos.subtract(radiusVec));
     }

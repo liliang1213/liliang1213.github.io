@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+
+<script type="text/javascript" src="js/sea.js"></script>
+<script>
+    seajs.use('./js/main.js',function(){
+        var engine = Engine.create();
+        var render = Render.create({engine: engine});
+        Render.run(render)
+    });
+</script>
+<script>
+  /*  var Engine = Matter.Engine,
+            Render = Matter.Render,
+            World = Matter.World,
+            Vertices=Matter.Vertices,
+            Bodies = Matter.Bodies;
+
+    // create an engine
+    var engine = Engine.create();*/
+
+    // create a renderer
+
+
+    // create two boxes and a ground
+//    var boxA = Bodies.matter(400, 200, 80, 80);
+ /*   var arrowVec = Vertices.fromPath('100 0 205 50 100 400 25 400 0 50 25 0');
+    var ground = Bodies.matter(400, 610, 810, 60, { isStatic: true });
+    var arrow=Bodies.fromVertices(400, 200,arrowVec);
+    // add all of the bodies to the world
+    World.add(engine.world, [arrow, ground]);
+
+    // run the engine
+    Engine.run(engine);
+
+    // run the renderer
+    Render.run(render);*/
+</script>
+</body>
+</html>

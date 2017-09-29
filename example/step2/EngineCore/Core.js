@@ -1,21 +1,8 @@
-/* 
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
+"use strict";
 
 
-/*jslint node: true, vars: true, evil: true, bitwise: true */
-/*global  requestAnimationFrame: false */
-/*global document,gObjectNum */
-"use strict";  // Operate in Strict mode such that variables must be declared before used!
-
-/**
- * Static refrence to gEngine
- * @type gEngine
- */
 var gEngine = gEngine || {};
-// initialize the variable while ensuring it is not redefined
+
 gEngine.Core = (function () {
     var mCanvas, mContext, mWidth = 800, mHeight = 450;
     mCanvas = document.getElementById('canvas');
@@ -24,30 +11,27 @@ gEngine.Core = (function () {
     mCanvas.width = mWidth;
 
     var mCurrentTime, mElapsedTime, mPreviousTime = Date.now(), mLagTime = 0;
-    var kFPS = 60;          // Frames per second
-    var kFrameTime = 1 / kFPS;
-    var mUpdateIntervalInSeconds = kFrameTime;
-    var kMPF = 1000 * kFrameTime; // Milliseconds per frame.
     var mAllObjects = [];
 
     var updateUIEcho = function () {
-        document.getElementById("uiEchoString").innerHTML =
-                "<p><b>Selected Object:</b>:</p>" +
+     /*   document.getElementById("uiEchoString").innerHTML =
+                "<p><b>选中的物体:</b>:</p>" +
                 "<ul style=\"margin:-10px\">" +
                 "<li>Id: " + gObjectNum + "</li>" +
                 "<li>Center: " + mAllObjects[gObjectNum].mCenter.x.toPrecision(3) + "," + mAllObjects[gObjectNum].mCenter.y.toPrecision(3) + "</li>" +
                 "<li>Angle: " + mAllObjects[gObjectNum].mAngle.toPrecision(3) + "</li>" +
                 "</ul> <hr>" +
-                "<p><b>Control</b>: of selected object</p>" +
+                "<p><b>控制选中物体</b>: </p>" +
                 "<ul style=\"margin:-10px\">" +
-                "<li><b>Num</b> or <b>Up/Down Arrow</b>: Select Object</li>" +
-                "<li><b>WASD</b> + <b>QE</b>: Position [Move + Rotate]</li>" +
+                "<li><b>数字键</b> 或者 <b>上/下 Arrow</b></li>" +
+                "<li><b>WASD</b> + <b>QE</b>: 移动+旋转 </li>" +
                 "</ul> <hr>" +
-                "<b>F/G</b>: Spawn [Rectangle/Circle] at selected object" +
-                "<p><b>H</b>: Fix object</p>" +
-                "<p><b>R</b>: Reset System</p>" +
-                "<hr>";
+                "<b>F/G</b>: 物体生成 [矩形/圆] " +
+                "<p><b>H</b>: 固定</p>" +
+                "<p><b>R</b>: 重置</p>" +
+                "<hr>";*/
     };
+
     var draw = function () {
         mContext.clearRect(0, 0, mWidth, mHeight);
         var i;
@@ -70,19 +54,7 @@ gEngine.Core = (function () {
             runGameLoop();
         });
 
-        //      compute how much time has elapsed since we last RunLoop was executed
-        mCurrentTime = Date.now();
-        mElapsedTime = mCurrentTime - mPreviousTime;
-        mPreviousTime = mCurrentTime;
-        mLagTime += mElapsedTime;
-
-        //      Make sure we update the game the appropriate number of times.
-        //      Update only every Milliseconds per frame.
-        //      If lag larger then update frames, update until caught up.
-        while (mLagTime >= kMPF) {
-            mLagTime -= kMPF;
-            update();
-        }
+        update();
         updateUIEcho();
         draw();
     };

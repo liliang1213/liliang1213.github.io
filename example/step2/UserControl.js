@@ -1,11 +1,3 @@
-/* 
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-
-/* global mAllObjects, gEngine */
-/*jslint node: true, vars: true, evil: true, bitwise: true */
 "use strict";
 var gObjectNum = 0;
 function userControl(event) {
@@ -13,26 +5,29 @@ function userControl(event) {
 
     if (window.event) {// IE
         keycode = event.keyCode;
-    } else if (event.which) {// Netscape/Firefox/Opera  
+    } else if (event.which) {
         keycode = event.which;
     }
+
+    //选择
     if (keycode >= 48 && keycode <= 57) {
         if (keycode - 48 < gEngine.Core.mAllObjects.length) {
             gObjectNum = keycode - 48;
         }
     }
-    if (keycode === 38) { //up arrow
+
+    if (keycode === 38) { //上
         if (gObjectNum > 0) {
             gObjectNum--;
         }
     }
-    if (keycode === 40) {// down arrow
+    if (keycode === 40) {//下
         if (gObjectNum < gEngine.Core.mAllObjects.length - 1) {
             gObjectNum++;
         }
     }
 
-    // move with WASD keys
+    // 移动
     if (keycode === 87) { //W
         gEngine.Core.mAllObjects[gObjectNum].move(new Vec2(0, -10));
     }
@@ -46,7 +41,7 @@ function userControl(event) {
         gEngine.Core.mAllObjects[gObjectNum].move(new Vec2(10, 0));
     }
 
-    // Rotate with QE keys
+    // 旋转
     if (keycode === 81) { //Q
         gEngine.Core.mAllObjects[gObjectNum].rotate(-0.1);
     }
@@ -54,7 +49,7 @@ function userControl(event) {
         gEngine.Core.mAllObjects[gObjectNum].rotate(0.1);
     }
 
-    // Toggle gravity with the H key
+    // 去除重力
     if (keycode === 72) { //H
         if (gEngine.Core.mAllObjects[gObjectNum].mFix === 0)
             gEngine.Core.mAllObjects[gObjectNum].mFix = 1;
@@ -62,7 +57,7 @@ function userControl(event) {
             gEngine.Core.mAllObjects[gObjectNum].mFix = 0;
     }
 
-
+    // 生成
     if (keycode === 70) {//f
         var r1 = new Rectangle(new Vec2(gEngine.Core.mAllObjects[gObjectNum].mCenter.x,
                 gEngine.Core.mAllObjects[gObjectNum].mCenter.y),
@@ -74,6 +69,7 @@ function userControl(event) {
                 Math.random() * 10 + 20);
     }
 
+    //去除
     if (keycode === 82) { //R
         gEngine.Core.mAllObjects.splice(5, gEngine.Core.mAllObjects.length);
         gObjectNum = 0;

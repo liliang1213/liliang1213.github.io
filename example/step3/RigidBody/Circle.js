@@ -1,10 +1,3 @@
-/* 
- * File:Circle.js
- *      define a circle
- *     
- */
-
-/*jslint node: true, vars: true, evil: true, bitwise: true */
 "use strict";
 
 var Circle = function (center, radius, mass, friction, restitution) {

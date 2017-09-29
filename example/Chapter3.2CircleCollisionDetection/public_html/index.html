@@ -7,7 +7,7 @@ and open the template in the editor.
 <html>
     <head>   
         <title>PhysicsEngine</title>
-        <link rel ="icon" type ="image/x-icon" href="./favicon.jpg">
+        <link rel ="icon" type ="image/x-icon" href="favicon.jpg">
     </head>
     <body onkeydown="return userControl(event);" 
           onload="
@@ -31,10 +31,13 @@ and open the template in the editor.
         
         
         <script type="text/javascript" src="Lib/Vec2.js"></script>
+        <script type="text/javascript" src="Lib/CollisionInfo.js"></script>
 
         <script type="text/javascript" src="RigidBody/RigidShape.js"></script>  
         <script type="text/javascript" src="RigidBody/Circle.js"></script>  
         <script type="text/javascript" src="RigidBody/Rectangle.js"></script>     
+        <script type="text/javascript" src="RigidBody/Circle_collision.js"></script>  
+        <script type="text/javascript" src="RigidBody/Rectangle_collision.js"></script>    
         
         <script type="text/javascript" src="EngineCore/Physics.js"></script>
         <script type="text/javascript" src="EngineCore/Core.js"></script>

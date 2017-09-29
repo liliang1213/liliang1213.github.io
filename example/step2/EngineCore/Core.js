@@ -14,7 +14,7 @@ gEngine.Core = (function () {
     var mAllObjects = [];
 
     var updateUIEcho = function () {
-     /*   document.getElementById("uiEchoString").innerHTML =
+        document.getElementById("uiEchoString").innerHTML =
                 "<p><b>选中的物体:</b>:</p>" +
                 "<ul style=\"margin:-10px\">" +
                 "<li>Id: " + gObjectNum + "</li>" +
@@ -29,7 +29,7 @@ gEngine.Core = (function () {
                 "<b>F/G</b>: 物体生成 [矩形/圆] " +
                 "<p><b>H</b>: 固定</p>" +
                 "<p><b>R</b>: 重置</p>" +
-                "<hr>";*/
+                "<hr>";
     };
 
     var draw = function () {

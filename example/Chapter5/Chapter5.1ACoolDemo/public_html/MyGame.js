@@ -13,11 +13,11 @@ function MyGame() {
     var r3 = new Rectangle(new Vec2(100, 200), 200, 20, 0);
     var r4 = new Rectangle(new Vec2(10, 360), 20, 100, 0, 0, 1);
 
-    for (var i = 0; i < 10; i++) {
+    for (var i = 0; i < 30; i++) {
         var r1 = new Rectangle(new Vec2(Math.random() * gEngine.Core.mWidth, Math.random() * gEngine.Core.mHeight / 2), Math.random() * 50 + 10, Math.random() * 50 + 10, Math.random() * 30, Math.random(), Math.random());
         r1.mVelocity = new Vec2(Math.random() * 60 - 30, Math.random() * 60 - 30);
-        var r1 = new Circle(new Vec2(Math.random() * gEngine.Core.mWidth, Math.random() * gEngine.Core.mHeight / 2), Math.random() * 20 + 10, Math.random() * 30, Math.random(), Math.random());
-        r1.mVelocity = new Vec2(Math.random() * 60 - 30, Math.random() * 60 - 30);
+    /*    var r1 = new Circle(new Vec2(Math.random() * gEngine.Core.mWidth, Math.random() * gEngine.Core.mHeight / 2), Math.random() * 20 + 10, Math.random() * 30, Math.random(), Math.random());
+        r1.mVelocity = new Vec2(Math.random() * 60 - 30, Math.random() * 60 - 30);*/
     }
 }
 

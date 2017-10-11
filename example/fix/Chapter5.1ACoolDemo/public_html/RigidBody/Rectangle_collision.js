@@ -45,7 +45,7 @@ var _projectToAxis = function(projection, vertices, axis) {
 
         if (dot > max) {
             max = dot;
-        } else if (dot < min) {
+        } else if (dot < min){
             min = dot;
         }
     }
@@ -176,11 +176,9 @@ var getCircleOverLap = function (bodyA,bodyB,axes) {
     var projectionB=new Vec2(0,0);
     var overlap;
 
-    if(bodyA.mType=='Circle'){
-        bodyA.mVertex=[bodyA.mCenter.subtract(axes[0].scale(bodyA.mRadius)),bodyA.mCenter.add(axes[0].scale(bodyA.mRadius))]
-    }
 
-  /*  var gContext=gEngine.Core.mContext;
+
+    /*var gContext=gEngine.Core.mContext;
     gContext.strokeStyle = 'orange';
     gContext.beginPath();
     gContext.moveTo(bodyA.mCenter.subtract(axes[0].scale(bodyA.mRadius)).x, bodyA.mCenter.subtract(axes[0].scale(bodyA.mRadius)).y);
@@ -191,7 +189,9 @@ var getCircleOverLap = function (bodyA,bodyB,axes) {
 
     for (var i = 0; i < axes.length; i++) {
         var axis = axes[i];
-
+        if(bodyA.mType=='Circle'){
+            bodyA.mVertex=[bodyA.mCenter.subtract(axis.scale(bodyA.mRadius)),bodyA.mCenter.add(axis.scale(bodyA.mRadius))]
+        }
         _projectToAxis(projectionA, bodyA.mVertex, axis);
         _projectToAxis(projectionB, bodyB.mVertex, axis);
 
@@ -200,6 +200,7 @@ var getCircleOverLap = function (bodyA,bodyB,axes) {
             result.overlap = overlap;
             return result;
         }
+
 
         if (overlap < result.overlap) {
             result.overlap = overlap;
@@ -210,45 +211,28 @@ var getCircleOverLap = function (bodyA,bodyB,axes) {
 };
 
 Rectangle.prototype.collidedRectCirc = function (circle, collisionInfo) {
-
-    var inside = true;
-    var bestDistance = -99999;
+    var circ2Pos=circle.mCenter;
+    var minDistance =circ2Pos.distance(this.mVertex[0]);
     var nearestEdge = 0;
-    var i, v;
-    var circ2Pos, projection,tempbest;
-    for (i = 0; i < 4; i++) {
-        //连接各顶点到圆心的向量，投影在各轴向量上
-        circ2Pos = circle.mCenter;
-        v = circ2Pos.subtract(this.mVertex[i]);
-        projection = v.dot(this.mFaceNormal[i]);
-        if (projection > 0) {           //只要有一处投影长度大于0，说明圆心在矩形外
-            if(bestDistance<0){
-                nearestEdge = i;
-                bestDistance=projection
-            }else{
-                if(projection<bestDistance){
-                    bestDistance=projection
-                    nearestEdge = i;
-                }
-            }
+    var i;
 
-            inside = false;
-        }else{
-            if (projection > bestDistance) {
-                bestDistance = projection;
-                nearestEdge = i;
-            }
+    for (i = 1; i < 4; i++) {
+        //连接各顶点到圆心的向量，投影在各轴向量上
+        var distance=circ2Pos.distance(this.mVertex[i]);
+        if (distance < minDistance) {           //只要有一处投影长度大于0，说明圆心在矩形外
+            minDistance=distance;
+            nearestEdge=i;
         }
     }
     var axis=[circle.mCenter.subtract(this.mVertex[nearestEdge]).normalize()];
-    /*var gContext=gEngine.Core.mContext;
-    gContext.strokeStyle = 'green';
-    gContext.beginPath();
-    gContext.moveTo(circle.mCenter.x, circle.mCenter.y);
-    gContext.lineTo(this.mVertex[nearestEdge].x, this.mVertex[nearestEdge].y);
+ /*   var gContext=gEngine.Core.mContext;
+     gContext.strokeStyle = 'green';
+     gContext.beginPath();
+     gContext.moveTo(circle.mCenter.x, circle.mCenter.y);
+     gContext.lineTo(this.mVertex[nearestEdge].x, this.mVertex[nearestEdge].y);
 
-    gContext.closePath();
-    gContext.stroke();*/
+     gContext.closePath();
+     gContext.stroke();*/
 
 
     var overlapAB=getCircleOverLap(circle,this,axis);         //检测圆心和最近顶点组成的轴上是否有重合
@@ -269,6 +253,11 @@ Rectangle.prototype.collidedRectCirc = function (circle, collisionInfo) {
         minOverlap=overlapBA;
     }
 
-    collisionInfo.setInfo(minOverlap.overlap, minOverlap.axis, circle.mCenter.subtract(minOverlap.axis.scale(minOverlap.overlap)));
+    //如果碰撞轴指向了圆则反转轴的方向
+    if (minOverlap.axis.dot( circle.mCenter.subtract( this.mCenter)) > 0) {
+        minOverlap.axis=minOverlap.axis.scale(-1);
+    }
+
+    collisionInfo.setInfo(minOverlap.overlap, minOverlap.axis, circle.mCenter.add(minOverlap.axis.scale(circle.mRadius-minOverlap.overlap)));
     return true;
 };

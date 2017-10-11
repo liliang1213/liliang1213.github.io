@@ -13,19 +13,46 @@ function MyGame() {
     var r3 = new Rectangle(new Vec2(100, 200), 200, 20, 0);
 
      for (var i = 0; i < 1; i++) {
-     /*    var centerX=Math.random() * gEngine.Core.mWidth,centerY=Math.random() * gEngine.Core.mHeight / 2, width=Math.random() * 50 + 10, height=Math.random() * 50 + 10, mass=Math.random() * 30, friction= Math.random(), restitution=Math.random()
-    console.log(centerX, centerY, width, height, mass, friction, restitution,'centerX, centerY, width, height, mass, friction, restitution')
-         var r1 = new Circle(new Vec2(centerX, centerY), width, height, mass, friction, restitution);
-    var vx=Math.random() * 60 - 30,vy=Math.random() * 60 - 30;
-    console.log(vx,vy,'vx,vy')
-    r1.mVelocity = new Vec2(vx,vy);*/
+         //圆形调试代码
+        /* var centerX=Math.random() * gEngine.Core.mWidth,
+             centerY=Math.random() * gEngine.Core.mHeight / 2,
+             radius=Math.random() * 20 + 10,
+             mass=Math.random() * 30,
+             friction= Math.random(),
+             restitution=Math.random();
 
-         var centerX=Math.random() * gEngine.Core.mWidth,centerY=Math.random() * gEngine.Core.mHeight / 2, width=Math.random() * 50 + 10, height=Math.random() * 50 + 10, mass=Math.random() * 30, friction= Math.random(), restitution=Math.random()
-         // console.log(centerX, centerY, width, height, mass, friction, restitution,'centerX, centerY, width, height, mass, friction, restitution')
-         var r1 = new Circle(new Vec2(294.09700358065504, 9.19856278588465), 14.643884074619542 ,51.4548070382139, 7.839643918318869,0.9182862212159124 ,0.6074265636622134);
-         // var vx=Math.random() * 60 - 30,vy=Math.random() * 60 - 30;
-         // console.log(vx,vy,'vx,vy')
-         r1.mVelocity = new Vec2(4.690833977680839 ,60.409821610408308);
+         console.log(centerX, centerY, radius, mass, friction, restitution,'centerX, centerY, radius, mass, friction, restitution')
+
+         var r1 = new Circle(new Vec2(260.7774466923317, 53.158349874831984), 13.690461478357165 ,8.68975181178399 ,0.7357455942757951 ,0.024662666834935676);
+
+         var vx=Math.random() * 60 - 30,vy=Math.random() * 60 - 30;
+         console.log(vx,vy,'vx,vy')
+         r1.mVelocity = new Vec2(21.136934101395795, -2.480280727694577 );*/
+
+         //圆形正常代码
+       /*  var r1 = new Circle(new Vec2(Math.random() * gEngine.Core.mWidth, Math.random() * gEngine.Core.mHeight / 2), Math.random() * 20 + 10, Math.random() * 30, Math.random(), Math.random());
+         r1.mVelocity = new Vec2(Math.random() * 60 - 30, Math.random() * 60 - 30);*/
+
+         //矩形调试代码
+          var centerX=Math.random() * gEngine.Core.mWidth,
+          centerY=Math.random() * gEngine.Core.mHeight / 2,
+          width=Math.random() * 50 + 10,
+              height=Math.random() * 50 + 10,
+          mass=Math.random() * 30,
+          friction= Math.random(),
+          restitution=Math.random();
+
+          console.log(centerX, centerY, width,height, mass, friction, restitution,'centerX, centerY, radius, mass, friction, restitution')
+
+          var r1 = new Rectangle(new Vec2(centerX, centerY),  width,height, mass, friction, restitution);
+
+          var vx=Math.random() * 60 - 30,vy=Math.random() * 60 - 30;
+          console.log(vx,vy,'vx,vy')
+          r1.mVelocity = new Vec2(vx,vy);
+
+         //矩形正常代码
+         /*var r1 = new Rectangle(new Vec2(Math.random() * gEngine.Core.mWidth, Math.random() * gEngine.Core.mHeight / 2), Math.random() * 50 + 10, Math.random() * 50 + 10, Math.random() * 30, Math.random(), Math.random());
+         r1.mVelocity = new Vec2(Math.random() * 60 - 30, Math.random() * 60 - 30);*/
      }
 }
 

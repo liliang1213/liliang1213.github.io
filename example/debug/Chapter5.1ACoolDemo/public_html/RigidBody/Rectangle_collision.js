@@ -128,32 +128,41 @@ Rectangle.prototype.collidedRectRect = function (A, B, collisionInfo) {
     }
 
     //寻找支撑点
-    var supportB=A.findSupportPoint(minOverlap.axis,B);   //在B上找支撑点,A是小盒子
-    var supportA=B.findSupportPoint(minOverlap.axis.scale(-1),A);   //在A上找支撑点
+    var supportB=A.findSupportPoint(minOverlap,B);   //在A上找支撑点
+    var supportA=B.findSupportPoint(minOverlap,A);   //在B上找支撑点
     var support;
-    var gContext=gEngine.Core.mContext;
-
-    support=supportB;
-    if(contains(B.mVertex,supportA)){
+    if(supportB&&contains(A.mVertex,supportB)){
+        support=supportB;
+        collisionInfo.setInfo(minOverlap.overlap, minOverlap.axis, support);
+    }else{
         support=supportA;
-        gContext.strokeStyle = 'purple';
+        collisionInfo.setInfo(minOverlap.overlap, minOverlap.axis.scale(-1), support.subtract(minOverlap.axis.scale(minOverlap.overlap)));
     }
 
-    collisionInfo.setInfo(minOverlap.overlap, minOverlap.axis, support);
+    var gContext=gEngine.Core.mContext;
+     gContext.strokeStyle = 'green';
+     gContext.beginPath();
+     gContext.moveTo(0,0);
+     gContext.lineTo(support.x, support.y);
+
+     gContext.closePath();
+     gContext.stroke();
+
+
     return true;
 };
 
-Rectangle.prototype.findSupportPoint = function (axis,rect) {
+Rectangle.prototype.findSupportPoint = function (overlap,rect) {
     var support=null,vertex,distance,nearestDistance=Number.MAX_VALUE;
 
-    var tempVertex= new Vec2(0,0);
+   var tempVertex= new Vec2(0,0);
 
     var vertices=rect.mVertex;
     for (var i = 0; i < vertices.length; i++) {
         vertex = vertices[i];
         tempVertex.x = vertex.x - this.mCenter.x;
         tempVertex.y = vertex.y - this.mCenter.y;
-        distance = tempVertex.dot(axis);
+        distance = tempVertex.dot(overlap.axis);
 
         if (distance < nearestDistance) {
             nearestDistance = distance;

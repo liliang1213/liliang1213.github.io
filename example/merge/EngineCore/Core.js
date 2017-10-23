@@ -34,35 +34,8 @@ gEngine.Core = (function () {
     var mAllObjects = [];
 
     var updateUIEcho = function () {
-        document.getElementById("uiEchoString").innerHTML =
-                "<p><b>Selected Object:</b>:</p>" +
-                "<ul style=\"margin:-10px\">" +
-                "<li>Id: " + gObjectNum + "</li>" +
-                "<li>Center: " + mAllObjects[gObjectNum].mCenter.x.toPrecision(3) + "," + mAllObjects[gObjectNum].mCenter.y.toPrecision(3) + "</li>" +
-                "<li>Angle: " + mAllObjects[gObjectNum].mAngle.toPrecision(3) + "</li>" +
-                "<li>Velocity: " + mAllObjects[gObjectNum].mVelocity.x.toPrecision(3) + "," + mAllObjects[gObjectNum].mVelocity.y.toPrecision(3) + "</li>" +
-                "<li>AngluarVelocity: " + mAllObjects[gObjectNum].mAngularVelocity.toPrecision(3) + "</li>" +
-                "<li>Mass: " + 1 / mAllObjects[gObjectNum].mInvMass.toPrecision(3) + "</li>" +
-                "<li>Friction: " + mAllObjects[gObjectNum].mFriction.toPrecision(3) + "</li>" +
-                "<li>Restitution: " + mAllObjects[gObjectNum].mRestitution.toPrecision(3) + "</li>" +
-                "<li>Positional Correction: " + gEngine.Physics.mPositionalCorrectionFlag + "</li>" +
-                "<li>Movement: " + gEngine.Core.mMovement + "</li>" +
-                "</ul> <hr>" +
-                "<p><b>Control</b>: of selected object</p>" +
-                "<ul style=\"margin:-10px\">" +
-                "<li><b>Num</b> or <b>Up/Down Arrow</b>: Select Object</li>" +
-                "<li><b>WASD</b> + <b>QE</b>: Position [Move + Rotate]</li>" +
-                "<li><b>IJKL</b> + <b>UO</b>: Velocities [Linear + Angular]</li>" +
-                "<li><b>Z/X</b>: Mass [Decrease/Increase]</li>" +
-                "<li><b>C/V</b>: Frictrion [Decrease/Increase]</li>" +
-                "<li><b>B/N</b>: Restitution [Decrease/Increase]</li>" +
-                "<li><b>M</b>: Positional Correction [On/Off]</li>" +
-                "<li><b>,</b>: Movement [On/Off]</li>" +
-                "</ul> <hr>" +
-                "<b>F/G</b>: Spawn [Rectangle/Circle] at selected object" +
-                "<p><b>H</b>: Excite all objects</p>" +
-                "<p><b>R</b>: Reset System</p>" +
-                "<hr>";
+        document.getElementById("uiEchoString").innerHTML ="";
+
     };
     var draw = function () {
         mContext.clearRect(0, 0, mWidth, mHeight);

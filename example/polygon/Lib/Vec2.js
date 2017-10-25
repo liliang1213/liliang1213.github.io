@@ -10,10 +10,6 @@ var Vec2 = function (x, y) {
     this.y = y;
 };
 
-Vec2.prototype.length = function () {
-    return Math.sqrt(this.x * this.x + this.y * this.y);
-};
-
 Vec2.prototype.add = function (vec) {
     return new Vec2(vec.x + this.x, vec.y + this.y);
 };
@@ -26,6 +22,10 @@ Vec2.prototype.scale = function (n) {
     return new Vec2(this.x * n, this.y * n);
 };
 
+Vec2.prototype.length = function () {
+    return Math.sqrt(this.x * this.x + this.y * this.y);
+};
+
 Vec2.prototype.dot = function (vec) {
     return (this.x * vec.x + this.y * vec.y);
 };
@@ -35,19 +35,18 @@ Vec2.prototype.cross = function (vec) {
 };
 
 Vec2.prototype.rotate = function (center, angle) {
-    //rotate in counterclockwise
-    var r = [];
+    var x1,y1;
 
     var x = this.x - center.x;
     var y = this.y - center.y;
 
-    r[0] = x * Math.cos(angle) - y * Math.sin(angle);
-    r[1] = x * Math.sin(angle) + y * Math.cos(angle);
+    x1 = x * Math.cos(angle) - y * Math.sin(angle);
+    y1 = x * Math.sin(angle) + y * Math.cos(angle);
 
-    r[0] += center.x;
-    r[1] += center.y;
+    x1 += center.x;
+    y1 += center.y;
 
-    return new Vec2(r[0], r[1]);
+    return new Vec2(x1, y1);
 };
 
 Vec2.prototype.normalize = function () {

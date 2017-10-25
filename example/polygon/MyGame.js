@@ -14,9 +14,9 @@ function MyGame() {
 
     var p1 = new Polygon([new Vec2(100, 200),new Vec2(200, 200),new Vec2(250, 250),new Vec2(50, 250)], 3, 300, 1);
 
-    /*for (var i = 0; i < 1; i++) {
+    for (var i = 0; i < 1; i++) {
          //圆形调试代码
-      /!*   var centerX=Math.random() * gEngine.Core.mWidth,
+        /* var centerX=Math.random() * gEngine.Core.mWidth,
              centerY=Math.random() * gEngine.Core.mHeight / 2,
              radius=Math.random() * 20 + 10,
              mass=Math.random() * 30,
@@ -29,7 +29,7 @@ function MyGame() {
 
          var vx=Math.random() * 60 - 30,vy=Math.random() * 60 - 30;
          console.log(vx,vy,'vx,vy')
-         r1.mVelocity = new Vec2(21.136934101395795, -2.480280727694577 );*!/
+         r1.mVelocity = new Vec2(21.136934101395795, -2.480280727694577 )
 
          //圆形正常代码
          var r1 = new Circle(new Vec2(Math.random() * gEngine.Core.mWidth, Math.random() * gEngine.Core.mHeight / 2), Math.random() * 20 + 10, Math.random() * 30, Math.random(), Math.random());
@@ -50,13 +50,13 @@ function MyGame() {
 
           var vx=Math.random() * 60 - 30,vy=Math.random() * 60 - 30;
           console.log(vx,vy,'vx,vy')
-          r1.mVelocity = new Vec2(vx,vy);
+          r1.mVelocity = new Vec2(vx,vy);*/
 
 
          //矩形正常代码
-        /!* var r1 = new Rectangle(new Vec2(559.6844169945291, 31.316602433838884), 26.4886973392982 ,47.13979461975169 ,16.210394630327222 ,0.5568285280768372 ,0.5611291606843027 );
-         r1.mVelocity = new Vec2(-27.64823839880822, 28.770085623239808);*!/
-     }*/
+     /*   var r1 = new Rectangle(new Vec2(559.6844169945291, 31.316602433838884), 26.4886973392982 ,47.13979461975169 ,16.210394630327222 ,0.5568285280768372 ,0.5611291606843027 );
+         r1.mVelocity = new Vec2(-27.64823839880822, 28.770085623239808);*/
+     }
 }
 
 

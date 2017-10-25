@@ -43,10 +43,13 @@ Rectangle.prototype.collidedRectRect = function (A, B, collisionInfo) {
         minOverlap=overlapBA;
     }
     //纠正轴向量的方向
-    if (minOverlap.axis.dot( B.mCenter.subtract( A.mCenter)) < 0) {
-        minOverlap.axis=minOverlap.axis.scale(-1);
+    try {
+        if (minOverlap.axis.dot(B.mCenter.subtract(A.mCenter)) < 0) {
+            minOverlap.axis = minOverlap.axis.scale(-1);
+        }
+    }catch(e){
+        debugger;
     }
-
     //寻找支撑点
     var supportB=A.findSupportPoint(minOverlap.axis,B);   //在B上找支撑点,A是小盒子
     var supportA=B.findSupportPoint(minOverlap.axis.scale(-1),A);   //在A上找支撑点

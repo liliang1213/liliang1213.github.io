@@ -13,6 +13,7 @@ function RigidShape(center, mass, friction, restitution) {
 
     this.mCenter = center;
     this.mInertia = 0;
+    this.mMass=mass;
     if (mass !== undefined) {
         this.mInvMass = mass;
     } else {
@@ -90,7 +91,7 @@ RigidShape.prototype.update = function () {
         this.move(this.mVelocity.scale(dt));
 
         this.mAngularVelocity += this.mAngularAcceleration * dt;
-        this.rotate(this.mAngularVelocity * dt);        
+        this.rotate(this.mAngularVelocity * dt);
     }
     var width = gEngine.Core.mWidth;
     var height = gEngine.Core.mHeight;

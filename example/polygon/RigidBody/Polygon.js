@@ -40,23 +40,31 @@ Vertices.area = function(vertices, signed) {
     return Math.abs(area) / 2;
 };
 
+Vertices.inertia = function(vertices, mass) {
+    var numerator = 0,
+        denominator = 0,
+        v = vertices,
+        cross,
+        j;
+
+    for (var n = 0; n < v.length; n++) {
+        j = (n + 1) % v.length;
+        cross = Math.abs(v[j].cross(v[n]));
+        numerator += cross * (v[j].dot( v[j]) + v[j].dot( v[n]) + v[n].dot( v[n]));
+        denominator += cross;
+    }
+
+    return (mass / 6) * (numerator / denominator);
+};
+
 var Polygon = function (vertices , mass, friction, restitution) {
     var center=Vertices.centre(vertices);
     RigidShape.call(this, center, mass, friction, restitution);
     this.mType = "Polygon";
 
-/*    var theta = 2 * Math.PI / sides,
-        offset = theta * 0.5;*/
     this.mVertex = vertices;
     this.mBoundRadius = this.getRadius(this.mVertex);
-   /* for (var i = 0; i < sides; i += 1) {
-        var angle = offset + (i * theta),
-            xx = Math.cos(angle) * radius,
-            yy = Math.sin(angle) * radius;
-        this.mVertex.push(new Vec2(xx,yy));
-    }*/
     this.mFaceNormal=this.getAxes();
-
     this.updateInertia();
 };
 
@@ -88,7 +96,6 @@ Polygon.prototype.getAxes=function(){
 
         axes[i] = normal;
     }
-
     return axes;
 }
 
@@ -134,8 +141,7 @@ Polygon.prototype.updateInertia = function () {
     if (this.mInvMass === 0) {
         this.mInertia = 0;
     } else {
-        //inertia=mass*width^2+height^2
-        this.mInertia = (1 / this.mInvMass) * (this.mWidth * this.mWidth + this.mHeight * this.mHeight) / 12;
+        this.mInertia=Vertices.inertia(this.mVertex,this.mMass);
         this.mInertia = 1 / this.mInertia;
     }
 };

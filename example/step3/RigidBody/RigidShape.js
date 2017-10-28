@@ -35,7 +35,7 @@ function RigidShape(center, mass, friction, restitution) {
 
     if (this.mInvMass !== 0) {
         this.mInvMass = 1 / this.mInvMass;
-        this.mAcceleration = gEngine.Core.mGravity;
+        this.mAcceleration = new Vec2(0, 0);
     } else {
         this.mAcceleration = new Vec2(0, 0);
     }

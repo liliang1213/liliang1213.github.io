@@ -43,7 +43,7 @@ gEngine.Core = (function () {
         for (i = 0; i < mAllObjects.length; i++) {
             mContext.strokeStyle = 'blue';
             if (i === gObjectNum) {
-                mContext.strokeStyle = 'red';
+                // mContext.strokeStyle = 'red';
             }
             mAllObjects[i].draw(mContext);
         }

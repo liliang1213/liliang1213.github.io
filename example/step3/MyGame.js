@@ -1,16 +1,6 @@
-/* 
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-/*jslint node: true, vars: true, evil: true, bitwise: true */
 "use strict";
 /* global height, width, gEngine */
 function MyGame() {
-    var r1 = new Rectangle(new Vec2(500, 200), 400, 20, 0, 0.3, 0.1);
-    r1.rotate(2.8);
-    var r2 = new Rectangle(new Vec2(200, 400), 400, 20, 0, 1, 0.1);
-    var r3 = new Rectangle(new Vec2(100, 200), 200, 20, 0);
 
      for (var i = 0; i < 20; i++) {
          //圆形调试代码
@@ -42,15 +32,13 @@ function MyGame() {
           friction= Math.random(),
           restitution=Math.random();
 
-          console.log(centerX, centerY, width,height, mass, friction, restitution,'centerX, centerY, radius, mass, friction, restitution')
 
           var r1 = new Rectangle(new Vec2(centerX, centerY),  width,height, mass, friction, restitution);
 
           var vx=Math.random() * 60 - 30,vy=Math.random() * 60 - 30;
-          console.log(vx,vy,'vx,vy')
           r1.mVelocity = new Vec2(vx,vy);
 
-
+         r1.rotate(3*Math.random());
          //矩形正常代码
         /* var r1 = new Rectangle(new Vec2(559.6844169945291, 31.316602433838884), 26.4886973392982 ,47.13979461975169 ,16.210394630327222 ,0.5568285280768372 ,0.5611291606843027 );
          r1.mVelocity = new Vec2(-27.64823839880822, 28.770085623239808);*/

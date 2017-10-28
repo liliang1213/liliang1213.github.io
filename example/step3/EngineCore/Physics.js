@@ -26,6 +26,7 @@ gEngine.Physics = (function () {
     };
 
     var resolveCollision = function (s1, s2, collisionInfo) {
+        return false;
 
         if ((s1.mInvMass === 0) && (s2.mInvMass === 0)) {
             return;
@@ -122,11 +123,15 @@ gEngine.Physics = (function () {
                             if (collisionInfo.getNormal().dot(gEngine.Core.mAllObjects[j].mCenter.subtract(gEngine.Core.mAllObjects[i].mCenter)) < 0) {
                                 collisionInfo.changeDir();
                             }
-
+                            if(gEngine.Core.mContext.strokeStyle!='red') {
+                                gEngine.Core.mContext.strokeStyle = 'red';
+                                gEngine.Core.mAllObjects[i].draw(gEngine.Core.mContext);
+                                gEngine.Core.mAllObjects[j].draw(gEngine.Core.mContext);
+                            }
                             //draw collision info (a black line that shows normal)
                             //drawCollisionInfo(collisionInfo, gEngine.Core.mContext);
 
-                            resolveCollision(gEngine.Core.mAllObjects[i], gEngine.Core.mAllObjects[j], collisionInfo);
+                            // resolveCollision(gEngine.Core.mAllObjects[i], gEngine.Core.mAllObjects[j], collisionInfo);
                         }
                     }
                 }

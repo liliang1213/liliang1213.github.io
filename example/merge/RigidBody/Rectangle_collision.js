@@ -49,8 +49,9 @@ Rectangle.prototype.collidedRectRect = function (A, B, collisionInfo) {
     }
 
     //寻找支撑点
-    var supportB=A.findSupportPoint(minOverlap.axis,B);   //在B上找支撑点,A是小盒子
     var supportA=B.findSupportPoint(minOverlap.axis.scale(-1),A);   //在A上找支撑点
+    var supportB=A.findSupportPoint(minOverlap.axis,B);   //在B上找支撑点,A是小盒子
+
     var support;
     var gContext=gEngine.Core.mContext;
 

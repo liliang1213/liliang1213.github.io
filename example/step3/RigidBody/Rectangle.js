@@ -26,6 +26,10 @@ var prototype = Object.create(RigidShape.prototype);
 prototype.constructor = Rectangle;
 Rectangle.prototype = prototype;
 
+Rectangle.prototype.setCollision=function(state){
+    this.collided=state;
+}
+
 Rectangle.prototype.getAxes=function(){
         var axes = [];
         var vertices=this.mVertex;
@@ -63,6 +67,10 @@ Rectangle.prototype.move = function (v) {
 
 Rectangle.prototype.draw = function (context) {
     context.save();
+
+    if(this.collided){
+        context.strokeStyle='red';
+    }
 
     context.translate(this.mVertex[0].x, this.mVertex[0].y);
     context.rotate(this.mAngle);

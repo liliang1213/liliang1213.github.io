@@ -26,6 +26,7 @@ var prototype = Object.create(RigidShape.prototype);
 prototype.constructor = Rectangle;
 Rectangle.prototype = prototype;
 
+
 Rectangle.prototype.getAxes=function(){
         var axes = [];
         var vertices=this.mVertex;
@@ -63,10 +64,10 @@ Rectangle.prototype.move = function (v) {
 
 Rectangle.prototype.draw = function (context) {
     context.save();
-
     context.translate(this.mVertex[0].x, this.mVertex[0].y);
     context.rotate(this.mAngle);
     context.strokeRect(0, 0, this.mWidth, this.mHeight);
+
 
     context.restore();
 };

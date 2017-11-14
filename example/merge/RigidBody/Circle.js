@@ -13,6 +13,10 @@ var prototype = Object.create(RigidShape.prototype);
 prototype.constructor = Circle;
 Circle.prototype = prototype;
 
+Circle.prototype.setCollision=function(state){
+    this.collided=state;
+}
+
 Circle.prototype.move = function (s) {
     this.mStartpoint = this.mStartpoint.add(s);
     this.mCenter = this.mCenter.add(s);

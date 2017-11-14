@@ -4,6 +4,7 @@
  * and open the template in the editor.
  */
 
+
 /*jslint node: true, vars: true, evil: true, bitwise: true */
 /*global  requestAnimationFrame: false */
 /*global document,gObjectNum */
@@ -22,6 +23,9 @@ gEngine.Core = (function () {
     mCanvas.height = mHeight;
     mCanvas.width = mWidth;
 
+    var mGravity = new Vec2(0, 20);
+    var mMovement = true;
+
     var mCurrentTime, mElapsedTime, mPreviousTime = Date.now(), mLagTime = 0;
     var kFPS = 60;          // Frames per second
     var kFrameTime = 1 / kFPS;
@@ -30,29 +34,17 @@ gEngine.Core = (function () {
     var mAllObjects = [];
 
     var updateUIEcho = function () {
-        document.getElementById("uiEchoString").innerHTML =
-                "<p><b>Selected Object:</b>:</p>" +
-                "<ul style=\"margin:-10px\">" +
-                "<li>Id: " + gObjectNum + "</li>" +
-                "<li>Center: " + mAllObjects[gObjectNum].mCenter.x.toPrecision(3) + "," + mAllObjects[gObjectNum].mCenter.y.toPrecision(3) + "</li>" +
-                "<li>Angle: " + mAllObjects[gObjectNum].mAngle.toPrecision(3) + "</li>" +
-                "</ul> <hr>" +
-                "<p><b>Control</b>: of selected object</p>" +
-                "<ul style=\"margin:-10px\">" +
-                "<li><b>Num</b> or <b>Up/Down Arrow</b>: Select Object</li>" +
-                "<li><b>WASD</b> + <b>QE</b>: Position [Move + Rotate]</li>" +
-                "</ul> <hr>" +
-                "<b>F/G</b>: Spawn [Rectangle/Circle] at selected object" +
-                "<p><b>R</b>: Reset System</p>" +
-                "<hr>";
+        document.getElementById("uiEchoString").innerHTML ="";
+
     };
     var draw = function () {
         mContext.clearRect(0, 0, mWidth, mHeight);
         var i;
         for (i = 0; i < mAllObjects.length; i++) {
             mContext.strokeStyle = 'blue';
-            if (i === gObjectNum)
-                mContext.strokeStyle = 'red';
+            if (i === gObjectNum) {
+                // mContext.strokeStyle = 'red';
+            }
             mAllObjects[i].draw(mContext);
         }
     };
@@ -93,7 +85,9 @@ gEngine.Core = (function () {
         mWidth: mWidth,
         mHeight: mHeight,
         mContext: mContext,
-        mUpdateIntervalInSeconds: mUpdateIntervalInSeconds
+        mGravity: mGravity,
+        mUpdateIntervalInSeconds: mUpdateIntervalInSeconds,
+        mMovement: mMovement
     };
     return mPublic;
 }());

@@ -9,12 +9,14 @@ var gEngine = gEngine || {};
 // initialize the variable while ensuring it is not redefined
 
 gEngine.Physics = (function () {
-
     var mPositionalCorrectionFlag = true;
-    var mRelaxationCount = 15;                  // number of relaxation iteration
+    var mRelaxationCount = 10;                  // number of relaxation iteration
     var mPosCorrectionRate = 0.8;               // percentage of separation to project objects
 
     var positionalCorrection = function (s1, s2, collisionInfo) {
+        if(collisionInfo.getDepth()<0.001){
+            return;
+        }
         var s1InvMass = s1.mInvMass;
         var s2InvMass = s2.mInvMass;
 
@@ -32,9 +34,6 @@ gEngine.Physics = (function () {
         }
 
         //  correct positions
-        if (gEngine.Physics.mPositionalCorrectionFlag) {
-            positionalCorrection(s1, s2, collisionInfo);
-        }
 
         var n = collisionInfo.getNormal();
 
@@ -74,7 +73,7 @@ gEngine.Physics = (function () {
         jN = jN / (s1.mInvMass + s2.mInvMass +
             R1crossN * R1crossN * s1.mInertia +
             R2crossN * R2crossN * s2.mInertia);
-
+        
         //impulse is in direction of normal ( from s1 to s2)
         var impulse = n.scale(jN);
         // impulse = F dt = m * ?v
@@ -123,10 +122,14 @@ gEngine.Physics = (function () {
                                 collisionInfo.changeDir();
                             }
 
+                            if (gEngine.Physics.mPositionalCorrectionFlag&&k==mRelaxationCount-1) {
+                                positionalCorrection(gEngine.Core.mAllObjects[i], gEngine.Core.mAllObjects[j], collisionInfo);
+                            }else{
+                                resolveCollision(gEngine.Core.mAllObjects[i], gEngine.Core.mAllObjects[j], collisionInfo);
+
+                            }
                             //draw collision info (a black line that shows normal)
                             //drawCollisionInfo(collisionInfo, gEngine.Core.mContext);
-
-                            resolveCollision(gEngine.Core.mAllObjects[i], gEngine.Core.mAllObjects[j], collisionInfo);
                         }
                     }
                 }

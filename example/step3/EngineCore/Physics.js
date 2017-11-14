@@ -117,21 +117,25 @@ gEngine.Physics = (function () {
         for (k = 0; k < mRelaxationCount; k++) {
             for (i = 0; i < gEngine.Core.mAllObjects.length; i++) {
                 for (j = i + 1; j < gEngine.Core.mAllObjects.length; j++) {
+
                     if (gEngine.Core.mAllObjects[i].boundTest(gEngine.Core.mAllObjects[j])) {
                         if (gEngine.Core.mAllObjects[i].collisionTest(gEngine.Core.mAllObjects[j], collisionInfo)) {
                             //make sure the normal is always from object[i] to object[j]
                             if (collisionInfo.getNormal().dot(gEngine.Core.mAllObjects[j].mCenter.subtract(gEngine.Core.mAllObjects[i].mCenter)) < 0) {
                                 collisionInfo.changeDir();
                             }
-                            if(gEngine.Core.mContext.strokeStyle!='red') {
-                                gEngine.Core.mContext.strokeStyle = 'red';
-                                gEngine.Core.mAllObjects[i].draw(gEngine.Core.mContext);
-                                gEngine.Core.mAllObjects[j].draw(gEngine.Core.mContext);
-                            }
+
+                            // gEngine.Core.mContext.strokeStyle = 'red';
+                            gEngine.Core.mAllObjects[i].setCollision(true);
+                            gEngine.Core.mAllObjects[j].setCollision(true);
+
                             //draw collision info (a black line that shows normal)
                             //drawCollisionInfo(collisionInfo, gEngine.Core.mContext);
 
                             // resolveCollision(gEngine.Core.mAllObjects[i], gEngine.Core.mAllObjects[j], collisionInfo);
+                        }else{
+                            gEngine.Core.mAllObjects[i].setCollision(false);
+                            gEngine.Core.mAllObjects[j].setCollision(false);
                         }
                     }
                 }

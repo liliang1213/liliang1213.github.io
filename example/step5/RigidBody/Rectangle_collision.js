@@ -1,124 +1,177 @@
-/* 
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-/*jslint node: true, vars: true, evil: true, bitwise: true */
 "use strict";
-/*global Rectangle, Vec2 */
 
 Rectangle.prototype.collisionTest = function (otherShape, collisionInfo) {
     var status = false;
     if (otherShape.mType === "Circle") {
-        status = false;
+        status = this.collidedRectCirc(otherShape, collisionInfo);
     } else {
         status = this.collidedRectRect(this, otherShape, collisionInfo);
     }
     return status;
 };
 
-var SupportStruct = function () {
-    this.mSupportPoint = null;
-    this.mSupportPointDist = 0;
-};
-var tmpSupport = new SupportStruct();
-
-Rectangle.prototype.findSupportPoint = function (dir, ptOnEdge) {
-    //the longest project length
-    var vToEdge;
-    var projection;
-
-    tmpSupport.mSupportPointDist = -9999999;
-    tmpSupport.mSupportPoint = null;
-    //check each vector of other object
-    for (var i = 0; i < this.mVertex.length; i++) {
-        vToEdge = this.mVertex[i].subtract(ptOnEdge);
-        projection = vToEdge.dot(dir);
-        
-        //find the longest distance with certain edge
-        //dir is -n direction, so the distance should be positive       
-        if ((projection > 0) && (projection > tmpSupport.mSupportPointDist)) {
-            tmpSupport.mSupportPoint = this.mVertex[i];
-            tmpSupport.mSupportPointDist = projection;
+var contains = function(vertices, point) {
+    for (var i = 0; i < vertices.length; i++) {
+        var vertice = vertices[i],
+            nextVertice = vertices[(i + 1) % vertices.length];
+        if ((point.x - vertice.x) * (nextVertice.y - vertice.y) + (point.y - vertice.y) * (vertice.x - nextVertice.x) > 0) {
+            return false;
         }
     }
+
+    return true;
 };
 
-/**
- * Find the shortest axis that overlapping
- * @memberOf Rectangle
- * @param {Rectangle} otherRect  another matter that being tested
- * @param {CollisionInfo} collisionInfo  record the collision information
- * @returns {Boolean} true if has overlap part in all four directions.
- * the code is convert from http://gamedevelopment.tutsplus.com/tutorials/how-to-create-a-custom-2d-physics-engine-oriented-rigid-bodies--gamedev-8032
- */
-Rectangle.prototype.findAxisLeastPenetration = function (otherRect, collisionInfo) {
+Rectangle.prototype.collidedRectRect = function (A, B, collisionInfo) {
 
-    var n;
-    var supportPoint;
+    //在A上寻找分离轴
+    var overlapAB = getOverLap(A,B,A.mFaceNormal);
+    if(overlapAB.overlap<=0){
+        return false;
+    }
 
-    var bestDistance = 999999;
-    var bestIndex = null;
+    //在B上寻找分离轴
+    var overlapBA = getOverLap(B,A,B.mFaceNormal);
+    if(overlapBA.overlap<=0){
+        return false;
+    }
 
-    var hasSupport = true;
-    var i = 0;
+    var minOverlap;
+    if(overlapAB.overlap<overlapBA.overlap){
+        minOverlap=overlapAB;
+    }else{
+        minOverlap=overlapBA;
+    }
 
-    while ((hasSupport) && (i < this.mFaceNormal.length)) {
-        // Retrieve a face normal from A
-        n = this.mFaceNormal[i];
+    //纠正轴向量的方向
+    if (minOverlap.axis.dot( B.mCenter.subtract( A.mCenter)) < 0) {
+        minOverlap.axis=minOverlap.axis.scale(-1);
+    }
 
-        // use -n as direction and the vectex on edge i as point on edge
-        var dir = n.scale(-1);
-        var ptOnEdge = this.mVertex[i];
-        // find the support on B
-        // the point has longest distance with edge i 
-        otherRect.findSupportPoint(dir, ptOnEdge);
-        hasSupport = (tmpSupport.mSupportPoint !== null);
-        
-        //get the shortest support point depth
-        if ((hasSupport) && (tmpSupport.mSupportPointDist < bestDistance)) {
-            bestDistance = tmpSupport.mSupportPointDist;
-            bestIndex = i;
-            supportPoint = tmpSupport.mSupportPoint;
+    //寻找支撑点
+    var supportB=A.findSupportPoint(minOverlap.axis,B);   //在B上找支撑点,A是小盒子
+    var supportA=B.findSupportPoint(minOverlap.axis.scale(-1),A);   //在A上找支撑点
+    var support;
+    var gContext=gEngine.Core.mContext;
+
+    support=supportB;
+    if(contains(B.mVertex,supportA)){
+        support=supportA;
+        gContext.strokeStyle = 'purple';
+    }
+
+    collisionInfo.setInfo(minOverlap.overlap, minOverlap.axis, support);
+    return true;
+};
+
+Rectangle.prototype.findSupportPoint = function (axis,rect) {
+    var support=null,vertex,distance,nearestDistance=Number.MAX_VALUE;
+
+    var tempVertex= new Vec2(0,0);
+
+    var vertices=rect.mVertex;
+    for (var i = 0; i < vertices.length; i++) {
+        vertex = vertices[i];
+        tempVertex.x = vertex.x - this.mCenter.x;
+        tempVertex.y = vertex.y - this.mCenter.y;
+        distance = tempVertex.dot(axis);
+
+        if (distance < nearestDistance) {
+            nearestDistance = distance;
+            support = vertices[i];
         }
-        i = i + 1;
     }
-    if (hasSupport) {
-        //all four directions have support point
-        var bestVec = this.mFaceNormal[bestIndex].scale(bestDistance);
-        collisionInfo.setInfo(bestDistance, this.mFaceNormal[bestIndex], supportPoint.add(bestVec));
-    }
-    return hasSupport;
+    return support;
 };
-/**
- * Check for collision between RigidRectangle and RigidRectangle
- * @param {Rectangle} r1 Rectangle object to check for collision status
- * @param {Rectangle} r2 Rectangle object to check for collision status against
- * @param {CollisionInfo} collisionInfo Collision info of collision
- * @returns {Boolean} true if collision occurs
- * @memberOf Rectangle
- */    
-var collisionInfoR1 = new CollisionInfo();
-var collisionInfoR2 = new CollisionInfo();
-Rectangle.prototype.collidedRectRect = function (r1, r2, collisionInfo) {
 
-    var status1 = false;
-    var status2 = false;
+var projectToAxis = function(vertices, axis) {
+    var projection={};
+    var min = vertices[0].dot(axis),
+        max = min;
 
-    //寻找分离轴
-    status1 = r1.findAxisLeastPenetration(r2, collisionInfoR1);
+    for (var i = 1; i < vertices.length; i += 1) {
+        var dot = vertices[i].dot(axis);
 
-    if (status1) {
-        status2 = r2.findAxisLeastPenetration(r1, collisionInfoR2);
-        if (status2) {
-            //if both of rectangles are overlapping, choose the shorter normal as the normal       
-            if (collisionInfoR1.getDepth() < collisionInfoR2.getDepth()) {
-                var depthVec = collisionInfoR1.getNormal().scale(collisionInfoR1.getDepth());
-                collisionInfo.setInfo(collisionInfoR1.getDepth(), collisionInfoR1.getNormal(), collisionInfoR1.mStart.subtract(depthVec));
-            } else {
-                collisionInfo.setInfo(collisionInfoR2.getDepth(), collisionInfoR2.getNormal().scale(-1), collisionInfoR2.mStart);
-            }
-        } 
-    } 
-    return status1 && status2;
+        if (dot > max) {
+            max = dot;
+        } else if (dot < min){
+            min = dot;
+        }
+    }
+
+    projection.min = min;
+    projection.max = max;
+    return projection;
+};
+
+var getOverLap = function (bodyA,bodyB,axes) {
+    var result = { overlap: Number.MAX_VALUE };
+    var projectionA,projectionB;
+    var overlap;
+
+    for (var i = 0; i < axes.length; i++) {
+        var axis = axes[i];
+        if(bodyA.mType=='Circle'){
+            bodyA.mVertex=[bodyA.mCenter.subtract(axis.scale(bodyA.mRadius)),bodyA.mCenter.add(axis.scale(bodyA.mRadius))]
+        }
+
+        projectionA=projectToAxis(bodyA.mVertex, axis);
+        projectionB=projectToAxis(bodyB.mVertex, axis);
+
+        overlap = Math.min(projectionA.max - projectionB.min, projectionB.max - projectionA.min);
+        if (overlap <= 0) {
+            result.overlap = overlap;
+            return result;
+        }
+
+
+        if (overlap < result.overlap) {
+            result.overlap = overlap;
+            result.axis = axis;
+        }
+    }
+    return result;
+};
+
+Rectangle.prototype.collidedRectCirc = function (circle, collisionInfo) {
+    var circ2Pos=circle.mCenter;
+    var minDistance =circ2Pos.distance(this.mVertex[0]);
+    var nearestEdge = 0;
+    var i;
+
+    for (i = 1; i < 4; i++) {
+        //连接各顶点到圆心的向量，投影在各轴向量上
+        var distance=circ2Pos.distance(this.mVertex[i]);
+        if (distance < minDistance) {           //只要有一处投影长度大于0，说明圆心在矩形外
+            minDistance=distance;
+            nearestEdge=i;
+        }
+    }
+    var axis=[circle.mCenter.subtract(this.mVertex[nearestEdge]).normalize()];
+
+    var overlapAB=getOverLap(circle,this,axis);         //检测圆心和最近顶点组成的轴上是否有重合
+    if(overlapAB.overlap<=0){
+        return false;
+    }
+
+    //在B上寻找分离轴
+    var overlapBA=getOverLap(circle,this,this.mFaceNormal);          //检测圆心和最近顶点组成的轴上是否有重合
+    if(overlapBA.overlap<=0){
+        return false;
+    }
+
+    var minOverlap;
+    if(overlapAB.overlap<overlapBA.overlap){
+        minOverlap=overlapAB;
+    }else{
+        minOverlap=overlapBA;
+    }
+
+    //如果碰撞轴指向了圆则反转轴的方向
+    if (minOverlap.axis.dot( circle.mCenter.subtract( this.mCenter)) > 0) {
+        minOverlap.axis=minOverlap.axis.scale(-1);
+    }
+
+    collisionInfo.setInfo(minOverlap.overlap, minOverlap.axis, circle.mCenter.add(minOverlap.axis.scale(circle.mRadius-minOverlap.overlap)));
+    return true;
 };

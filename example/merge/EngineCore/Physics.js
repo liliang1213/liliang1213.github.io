@@ -33,54 +33,47 @@ gEngine.Physics = (function () {
             return;
         }
 
-        //  correct positions
-
         var n = collisionInfo.getNormal();
 
-        //the direction of collisionInfo is always from s1 to s2
-        //but the Mass is inversed, so start scale with s2 and end scale with s1
-        var start = collisionInfo.mStart.scale(s2.mInvMass / (s1.mInvMass + s2.mInvMass));
-        var end = collisionInfo.mEnd.scale(s1.mInvMass / (s1.mInvMass + s2.mInvMass));
-        var p = start.add(end);
-        //r is vector from center of object to collision point
-        var r1 = p.subtract(s1.mCenter);
-        var r2 = p.subtract(s2.mCenter);
+        var start = collisionInfo.mStart;
 
-        //newV = V + mAngularVelocity cross R
+        //碰撞点到质心的距离r1、r2
+        var r1 = start.subtract(s1.mCenter);
+        var r2 = start.subtract(s2.mCenter);
+
+        //v1=v+w×r
         var v1 = s1.mVelocity.add(new Vec2(-1 * s1.mAngularVelocity * r1.y, s1.mAngularVelocity * r1.x));
         var v2 = s2.mVelocity.add(new Vec2(-1 * s2.mAngularVelocity * r2.y, s2.mAngularVelocity * r2.x));
         var relativeVelocity = v2.subtract(v1);
 
-        // Relative velocity in normal direction
         var rVelocityInNormal = relativeVelocity.dot(n);
 
-        //if objects moving apart ignore
+        //如果两个物体已经分开了，直接忽略
         if (rVelocityInNormal > 0) {
             return;
         }
 
-        // compute and apply response impulses for each object
         var newRestituion = Math.min(s1.mRestitution, s2.mRestitution);
         var newFriction = Math.min(s1.mFriction, s2.mFriction);
 
-        //R cross N
+        //r×n
         var R1crossN = r1.cross(n);
         var R2crossN = r2.cross(n);
 
-        // Calc impulse scalar
-        // the formula of jN can be found in http://www.myphysicslab.com/collision.html
+        // 计算冲量
         var jN = -(1 + newRestituion) * rVelocityInNormal;
         jN = jN / (s1.mInvMass + s2.mInvMass +
             R1crossN * R1crossN * s1.mInertia +
             R2crossN * R2crossN * s2.mInertia);
-        
-        //impulse is in direction of normal ( from s1 to s2)
+
+        //冲量分解
         var impulse = n.scale(jN);
-        // impulse = F dt = m * ?v
-        // ?v = impulse / m
+
+        //计算速度
         s1.mVelocity = s1.mVelocity.subtract(impulse.scale(s1.mInvMass));
         s2.mVelocity = s2.mVelocity.add(impulse.scale(s2.mInvMass));
 
+        //计算加速度
         s1.mAngularVelocity -= R1crossN * jN * s1.mInertia;
         s2.mAngularVelocity += R2crossN * jN * s2.mInertia;
 

@@ -36,7 +36,6 @@ Vertices.area = function(vertices, signed) {
 
     if (signed)
         return area / 2;
-
     return Math.abs(area) / 2;
 };
 

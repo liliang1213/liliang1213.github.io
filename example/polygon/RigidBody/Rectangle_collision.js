@@ -141,7 +141,7 @@ Rectangle.prototype.collidedRectCirc = function (circle, collisionInfo) {
     var nearestEdge = 0;
     var i;
 
-    for (i = 1; i < 4; i++) {
+    for (i = 1; i < this.mVertex.length; i++) {
         //连接各顶点到圆心的向量，投影在各轴向量上
         var distance=circ2Pos.distance(this.mVertex[i]);
         if (distance < minDistance) {           //只要有一处投影长度大于0，说明圆心在矩形外

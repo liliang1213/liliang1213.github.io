@@ -55,7 +55,7 @@ function RigidShape(center, mass, friction, restitution) {
 }
 
 RigidShape.prototype.updateMass = function (delta) {
-    var mass;
+  /*  var mass;
     if (this.mInvMass !== 0) {
         mass = 1 / this.mInvMass;
     } else {
@@ -73,7 +73,7 @@ RigidShape.prototype.updateMass = function (delta) {
         this.mInvMass = 1 / mass;
         this.mAcceleration = gEngine.Core.mGravity;
     }
-    this.updateInertia();
+    this.updateInertia();*/
 };
 
 RigidShape.prototype.updateInertia = function () {

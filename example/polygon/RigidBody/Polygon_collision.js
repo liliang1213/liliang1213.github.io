@@ -23,7 +23,6 @@ var contains = function(vertices, point) {
 };
 
 Polygon.prototype.collidedRectRect = function (A, B, collisionInfo) {
-
     //在A上寻找分离轴
     var overlapAB = getOverLap(A,B,A.mFaceNormal);
     if(overlapAB.overlap<=0){
@@ -57,8 +56,15 @@ Polygon.prototype.collidedRectRect = function (A, B, collisionInfo) {
     support=supportB;
     if(contains(B.mVertex,supportA)){
         support=supportA;
-        gContext.strokeStyle = 'purple';
     }
+
+   /* gContext.strokeStyle = 'purple';
+    gContext.beginPath();
+    gContext.moveTo(0,0);
+    gContext.lineTo(support.x, support.y);
+
+    gContext.closePath();
+    gContext.stroke();*/
 
     collisionInfo.setInfo(minOverlap.overlap, minOverlap.axis, support);
     return true;

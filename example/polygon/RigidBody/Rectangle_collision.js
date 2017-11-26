@@ -59,8 +59,16 @@ Rectangle.prototype.collidedRectRect = function (A, B, collisionInfo) {
     support=supportB;
     if(contains(B.mVertex,supportA)){
         support=supportA;
-        gContext.strokeStyle = 'purple';
+
     }
+
+  /*  gContext.strokeStyle = 'green';
+    gContext.beginPath();
+    gContext.moveTo(0,0);
+    gContext.lineTo(B.mCenter.x, B.mCenter.y);
+
+    gContext.closePath();
+    gContext.stroke();*/
 
     collisionInfo.setInfo(minOverlap.overlap, minOverlap.axis, support);
     return true;

@@ -117,7 +117,6 @@ gEngine.Physics = (function () {
             for (i = 0; i < gEngine.Core.mAllObjects.length; i++) {
                 for (j = i + 1; j < gEngine.Core.mAllObjects.length; j++) {
                     if (gEngine.Core.mAllObjects[i].boundTest(gEngine.Core.mAllObjects[j])) {
-
                         if (gEngine.Core.mAllObjects[i].collisionTest(gEngine.Core.mAllObjects[j], collisionInfo)) {
                             //make sure the normal is always from object[i] to object[j]
                             if (collisionInfo.getNormal().dot(gEngine.Core.mAllObjects[j].mCenter.subtract(gEngine.Core.mAllObjects[i].mCenter)) < 0) {

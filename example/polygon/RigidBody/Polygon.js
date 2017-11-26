@@ -143,4 +143,5 @@ Polygon.prototype.updateInertia = function () {
         this.mInertia=Vertices.inertia(this.mVertex,this.mMass);
         this.mInertia = 1 / this.mInertia;
     }
+    console.log(this.mInertia,'this.mInertia123')
 };

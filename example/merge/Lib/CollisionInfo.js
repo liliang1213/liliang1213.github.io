@@ -1,10 +1,3 @@
-/* 
- * File: CollisionInfo.js
- *      normal: vector upon which collision interpenetrates
- *      depth: how much penetration
- */
-
-/*jslint node: true, vars: true, evil: true, bitwise: true */
 "use strict";
 
 /**
@@ -60,7 +53,7 @@ CollisionInfo.prototype.getNormal = function () {
 /**
  * Set the all value of the CollisionInfo
  * @memberOf CollisionInfo
- * @param {Number} d the depth of the CollisionInfo 
+ * @param {Number} d the depth of the CollisionInfo
  * @param {Vec2} n the normal of the CollisionInfo
  * @param {Vec2} s the startpoint of the CollisionInfo
  * @returns {void}

@@ -1,21 +1,12 @@
-/* 
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 
-
-/*jslint node: true, vars: true, evil: true, bitwise: true */
-/*global  requestAnimationFrame: false */
-/*global document,gObjectNum */
-"use strict";  // Operate in Strict mode such that variables must be declared before used!
+"use strict";
 
 /**
  * Static refrence to gEngine
  * @type gEngine
  */
 var gEngine = gEngine || {};
-// initialize the variable while ensuring it is not redefined
+
 gEngine.Core = (function () {
     var mCanvas, mContext, mWidth = 800, mHeight = 450;
     mCanvas = document.getElementById('canvas');
@@ -27,10 +18,10 @@ gEngine.Core = (function () {
     var mMovement = true;
 
     var mCurrentTime, mElapsedTime, mPreviousTime = Date.now(), mLagTime = 0;
-    var kFPS = 60;          // Frames per second
+    var kFPS = 60;
     var kFrameTime = 1 / kFPS;
     var mUpdateIntervalInSeconds = kFrameTime;
-    var kMPF = 1000 * kFrameTime; // Milliseconds per frame.
+    var kMPF = 1000 * kFrameTime;
     var mAllObjects = [];
 
     var updateUIEcho = function () {
@@ -59,7 +50,6 @@ gEngine.Core = (function () {
             runGameLoop();
         });
 
-        //      compute how much time has elapsed since we last runGameLoop was executed
         mCurrentTime = Date.now();
         mElapsedTime = mCurrentTime - mPreviousTime;
         mPreviousTime = mCurrentTime;
@@ -67,9 +57,7 @@ gEngine.Core = (function () {
 
         updateUIEcho();
         draw();
-        //      Make sure we update the game the appropriate number of times.
-        //      Update only every Milliseconds per frame.
-        //      If lag larger then update frames, update until caught up.
+
         while (mLagTime >= kMPF) {
             mLagTime -= kMPF;
             gEngine.Physics.collision();

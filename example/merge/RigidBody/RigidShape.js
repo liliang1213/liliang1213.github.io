@@ -1,13 +1,5 @@
-/* 
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-
-/*jslint node: true, vars: true, evil: true, bitwise: true */
 "use strict";
 
-/* global mAllObjects, dt, gEngine */
 
 function RigidShape(center, mass, friction, restitution) {
 
@@ -43,8 +35,6 @@ function RigidShape(center, mass, friction, restitution) {
     //angle
     this.mAngle = 0;
 
-    //negetive-- clockwise
-    //postive-- counterclockwise
     this.mAngularVelocity = 0;
 
     this.mAngularAcceleration = 0;
@@ -77,8 +67,6 @@ RigidShape.prototype.updateMass = function (delta) {
 };
 
 RigidShape.prototype.updateInertia = function () {
-    // subclass must define this.
-    // must work with inverted this.mInvMass
 };
 
 RigidShape.prototype.update = function () {

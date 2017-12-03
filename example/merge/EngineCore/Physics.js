@@ -79,7 +79,6 @@ gEngine.Physics = (function () {
 
         var tangent = relativeVelocity.subtract(n.scale(relativeVelocity.dot(n)));
 
-        //relativeVelocity.dot(tangent) should less than 0
         tangent = tangent.normalize().scale(-1);
 
         var R1crossT = r1.cross(tangent);
@@ -88,12 +87,10 @@ gEngine.Physics = (function () {
         var jT = -(1 + newRestituion) * relativeVelocity.dot(tangent) * newFriction;
         jT = jT / (s1.mInvMass + s2.mInvMass + R1crossT * R1crossT * s1.mInertia + R2crossT * R2crossT * s2.mInertia);
 
-        //friction should less than force in normal direction
         if (jT > jN) {
             jT = jN;
         }
 
-        //impulse is from s1 to s2 (in opposite direction of velocity)
         impulse = tangent.scale(jT);
 
         s1.mVelocity = s1.mVelocity.subtract(impulse.scale(s1.mInvMass));
@@ -110,7 +107,7 @@ gEngine.Physics = (function () {
                 for (j = i + 1; j < gEngine.Core.mAllObjects.length; j++) {
                     if (gEngine.Core.mAllObjects[i].boundTest(gEngine.Core.mAllObjects[j])) {
                         if (gEngine.Core.mAllObjects[i].collisionTest(gEngine.Core.mAllObjects[j], collisionInfo)) {
-                            //make sure the normal is always from object[i] to object[j]
+                            //确保法向量方向由i指向j
                             if (collisionInfo.getNormal().dot(gEngine.Core.mAllObjects[j].mCenter.subtract(gEngine.Core.mAllObjects[i].mCenter)) < 0) {
                                 collisionInfo.changeDir();
                             }
@@ -121,8 +118,6 @@ gEngine.Physics = (function () {
                                 resolveCollision(gEngine.Core.mAllObjects[i], gEngine.Core.mAllObjects[j], collisionInfo);
 
                             }
-                            //draw collision info (a black line that shows normal)
-                            //drawCollisionInfo(collisionInfo, gEngine.Core.mContext);
                         }
                     }
                 }

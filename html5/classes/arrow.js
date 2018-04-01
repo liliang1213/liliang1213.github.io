@@ -14,13 +14,18 @@ Arrow.prototype.draw = function (context) {
   context.fillStyle = this.color;
   context.beginPath();
   context.moveTo(-15, 0);
-  context.lineTo(-50, 50);
+  context.lineTo(-100, 100);
   context.lineTo(50, 0);
-  context.lineTo(-50, -50);
+  context.lineTo(-100, -100);
   context.lineTo(-15, 0);
   context.closePath();
   context.fill();
   context.stroke();
-  
+    context.strokeStyle = '#f00';
+    context.beginPath();
+    context.moveTo(50, 0);
+    context.lineTo(-15, 0);
+    context.stroke();
+    context.closePath();
   context.restore();
 };

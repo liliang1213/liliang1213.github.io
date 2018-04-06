@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>正弦波绘制</title>
+    <meta name="viewport" content="width=device-width,user-scalable=0,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0">
+    <style type="text/css">
+        body  {margin:0;padding:0;font-size:0;overflow:hidden;}
+        canvas{overflow:hidden;}
+    </style>
+</head>
+<body>
+    <canvas id="canvas" ></canvas>
+    <script src="../utils/utils.js"></script>
+    <script src="../classes/ball.js"></script>
+    <script>
+        var canvas;
+        canvas = document.getElementById('canvas');
+        canvas.width=utils.getScreenSize().w;
+        canvas.height=utils.getScreenSize().h;
+
+        window.onresize = function () {
+            canvas.width=utils.getScreenSize().w;
+            canvas.height=utils.getScreenSize().h;
+        }
+
+        window.onload = function () {
+            var context = canvas.getContext('2d'),
+                angleY = 0,
+                angleX=0,
+                range = 50,
+                centerY = canvas.height / 2,
+                centerX = 0,
+                xspeed = 2,
+//                xspeed = 0.07,        //双向正弦运动路径
+                yspeed = 0.1,
+                xpos = centerX,
+                ypos = centerY;
+
+            context.lineWidth = 2;
+
+            (function drawFrame () {
+                window.requestAnimationFrame(drawFrame, canvas);
+
+                context.beginPath();
+                context.moveTo(xpos, ypos);
+                xpos += xspeed;
+
+               /* xpos = centerX + Math.cos(angleX) * range;        //双向正弦运动路径
+                angleX+=xspeed;*/
+                angleY += yspeed;
+                ypos = centerY + Math.sin(angleY) * range*Math.exp(-0.002*xpos);
+                context.lineTo(xpos, ypos);
+                context.stroke();
+            }());
+        };
+
+    </script>
+</body>
+</html>

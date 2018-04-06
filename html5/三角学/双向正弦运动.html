@@ -44,7 +44,7 @@
                 centerY=canvas.height/2;
                 monster.x = 0;
                 monster.y = 600;
-                monster.action=1;
+                monster.action=2;
                 monster.timeout=0;
                 monster.randomX=Math.random()>0.5?1:-1;
                 monster.randomY=Math.random()>0.5?1:-1;
@@ -56,37 +56,14 @@
                 (function drawFrame () {
                     window.requestAnimationFrame(drawFrame, canvas);
                     context.clearRect(0, 0, canvas.width, canvas.height);
-                    if(monster.action==1){
-//                        monster.x+=vx;
-                           monster.y += Math.sin(angle) * speed;
-                           monster.x += Math.cos(angle) * speed;
-                           var curAngle=Math.atan2(centerY-monster.y,centerX-monster.x);
-                           if(curAngle.toFixed(2)!=angle.toFixed(2)){
-                               console.log(curAngle,angle,'curAngle,angle')
-                               monster.action++;
-                           }
-//                       }
-                /*    }else if(&&!monster.s1){
-//                        monster.y+=vy;
-                        monster.y+=Math.sin(angle)*speed;*/
-                    }else if(monster.action==2){
-                        if(monster.timeout<20){
-                            monster.timeout++
-                        }else {
-                            monster.timeout=0;
-                            monster.x = canvas.width / 2 + Math.sin(angleX) * 50;          //双向正弦运动
-                            monster.y = canvas.height / 2 + Math.sin(angleY) * 50;
+                    if(monster.action==2){
 
-                            if (angleX > Math.PI * 2.5 || angleX < -Math.PI * 2.5) {
-                                monster.action++;
-                            }
+                        monster.timeout=0;
+                        monster.x = canvas.width / 2 + Math.sin(angleX) * 50;          //双向正弦运动
+                        monster.y = canvas.height / 2 + Math.sin(angleY) * 50;
 
-                            angleX += 0.07 / 2 * monster.randomX;
-                            angleY += 0.1 / 2 * monster.randomY;
-                        }
-                    }else{
-                        monster.y+=Math.sin(-1*angle)*speed;
-                        monster.x+=Math.cos(angle)*speed;
+                        angleX += 0.07 / 2 * monster.randomX;
+                        angleY += 0.1 / 2 * monster.randomY;
                     }
 
                     monster.draw(context);

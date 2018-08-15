@@ -1,21 +1,16 @@
-/* 
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-/*jslint node: true, vars: true, evil: true, bitwise: true */
-"use strict";
-/* global RigidShape */
-var Vertices={};
+import RigidShape from './RigidShape';
+import Vec2 from '../Lib/Vec2';
 
-Vertices.centre = function(vertices) {
-    var area = Vertices.area(vertices, true),
-        centre = new Vec2( 0,  0 ),
-        cross,
-        temp,
-        j;
+const Vertices={};
 
-    for (var i = 0; i < vertices.length; i++) {
+Vertices.centre = vertices => {
+    const area = Vertices.area(vertices, true);
+    let centre = new Vec2( 0,  0 );
+    let cross;
+    let temp;
+    let j;
+
+    for (let i = 0; i < vertices.length; i++) {
         j = (i + 1) % vertices.length;
         cross = vertices[i].cross(vertices[j]);
         temp = vertices[i].add(vertices[j]).scale(cross);
@@ -25,11 +20,11 @@ Vertices.centre = function(vertices) {
     return centre.scale(1/(6 * area));
 };
 
-Vertices.area = function(vertices, signed) {
-    var area = 0,
-        j = vertices.length - 1;
+Vertices.area = (vertices, signed) => {
+    let area = 0;
+    let j = vertices.length - 1;
 
-    for (var i = 0; i < vertices.length; i++) {
+    for (let i = 0; i < vertices.length; i++) {
         area += (vertices[j].x - vertices[i].x) * (vertices[j].y + vertices[i].y);
         j = i;
     }
@@ -39,14 +34,14 @@ Vertices.area = function(vertices, signed) {
     return Math.abs(area) / 2;
 };
 
-Vertices.inertia = function(vertices, mass) {
-    var numerator = 0,
-        denominator = 0,
-        v = vertices,
-        cross,
-        j;
+Vertices.inertia = (vertices, mass) => {
+    let numerator = 0;
+    let denominator = 0;
+    const v = vertices;
+    let cross;
+    let j;
 
-    for (var n = 0; n < v.length; n++) {
+    for (let n = 0; n < v.length; n++) {
         j = (n + 1) % v.length;
         cross = Math.abs(v[j].cross(v[n]));
         numerator += cross * (v[j].dot( v[j]) + v[j].dot( v[n]) + v[n].dot( v[n]));
@@ -56,92 +51,279 @@ Vertices.inertia = function(vertices, mass) {
     return (mass / 6) * (numerator / denominator);
 };
 
-var Polygon = function (vertices , mass, friction, restitution) {
-    var center=Vertices.centre(vertices);
-    RigidShape.call(this, center, mass, friction, restitution);
-    this.mType = "Polygon";
+class Polygon extends RigidShape{
+    constructor(vertices, mass, friction, restitution) {
+        const center=Vertices.centre(vertices);
+        super(center, mass, friction, restitution);
+        this.mType = "Polygon";
 
-    this.mVertex = vertices;
-    this.mBoundRadius = this.getRadius(this.mVertex);
-    this.mFaceNormal=this.getAxes();
-    this.updateInertia();
-};
-
-var prototype = Object.create(RigidShape.prototype);
-prototype.constructor = Polygon;
-Polygon.prototype = prototype;
-
-Polygon.prototype.getRadius=function(vertices){
-    var radius = 0;
-
-    for (var i = 0; i < vertices.length; i++) {
-        if(vertices[i].distance(this.mCenter)>radius){
-            radius=vertices[i].distance(this.mCenter)
-        }
+        this.mVertex = vertices;
+        this.mBoundRadius = this.getRadius(this.mVertex);
+        this.mFaceNormal=this.getAxes();
+        this.updateInertia();
     }
 
-    return radius;
-}
+    getRadius(vertices) {
+        let radius = 0;
 
-Polygon.prototype.getAxes=function(){
-    var axes = [];
-    var vertices=this.mVertex;
-    for (var i = 0; i < vertices.length; i++) {
-        var j = (i + 1) % vertices.length,
-            normal = new Vec2(
+        for (let i = 0; i < vertices.length; i++) {
+            if(vertices[i].distance(this.mCenter)>radius){
+                radius=vertices[i].distance(this.mCenter)
+            }
+        }
+
+        return radius;
+    }
+
+    getAxes() {
+        const axes = [];
+        const vertices=this.mVertex;
+        for (let i = 0; i < vertices.length; i++) {
+            const j = (i + 1) % vertices.length;
+
+            const normal = new Vec2(
                 vertices[j].y - vertices[i].y,
                 vertices[i].x - vertices[j].x
             ).normalize();
 
-        axes[i] = normal;
+            axes[i] = normal;
+        }
+        return axes;
     }
-    return axes;
+
+    rotate(angle) {
+        this.mAngle += angle;
+        let i;
+        for (i = 0; i < this.mVertex.length; i++) {
+            this.mVertex[i] = this.mVertex[i].rotate(this.mCenter, angle);
+        }
+        this.mFaceNormal=this.getAxes();
+        return this;
+    }
+
+    move(v) {
+        let i;
+        for (i = 0; i < this.mVertex.length; i++) {
+            this.mVertex[i] = this.mVertex[i].add(v);
+        }
+        this.mCenter = this.mCenter.add(v);
+        return this;
+    }
+
+    draw(context) {
+        context.save();
+        context.beginPath();
+        const vertices=this.mVertex;
+        for (let i = 0; i < vertices.length; i++) {
+            const j = (i + 1) % vertices.length;
+            context.moveTo(this.mVertex[i].x, this.mVertex[i].y);
+            context.lineTo(this.mVertex[j].x, this.mVertex[j].y);
+        }
+        context.closePath();
+        context.stroke();
+
+        context.translate(this.mVertex[0].x, this.mVertex[0].y);
+        context.rotate(this.mAngle);
+
+        context.restore();
+    }
+
+    updateInertia() {
+        // Expect this.mInvMass to be already inverted!
+        if (this.mInvMass === 0) {
+            this.mInertia = 0;
+        } else {
+            this.mInertia=Vertices.inertia(this.mVertex,this.mMass);
+            this.mInertia = 1 / this.mInertia;
+        }
+        console.log(this.mInertia,'this.mInertia123')
+    }
+
+    collisionTest(otherShape, collisionInfo) {
+        let status = false;
+        if (otherShape.mType === "Circle") {
+            status = this.collidedRectCirc(otherShape, collisionInfo);
+        } else {
+            status = this.collidedRectRect(this, otherShape, collisionInfo);
+        }
+        return status;
+    }
+
+    collidedRectRect(A, B, collisionInfo) {
+        //在A上寻找分离轴
+        const overlapAB = getOverLap(A,B,A.mFaceNormal);
+        if(overlapAB.overlap<=0){
+            return false;
+        }
+
+        //在B上寻找分离轴
+        const overlapBA = getOverLap(B,A,B.mFaceNormal);
+        if(overlapBA.overlap<=0){
+            return false;
+        }
+
+        let minOverlap;
+        if(overlapAB.overlap<overlapBA.overlap){
+            minOverlap=overlapAB;
+        }else{
+            minOverlap=overlapBA;
+        }
+
+        //纠正轴向量的方向
+        if (minOverlap.axis.dot( B.mCenter.subtract( A.mCenter)) < 0) {
+            minOverlap.axis=minOverlap.axis.scale(-1);
+        }
+
+        //寻找支撑点
+        const supportB=A.findSupportPoint(minOverlap.axis,B);   //在B上找支撑点,A是小盒子
+        const supportA=B.findSupportPoint(minOverlap.axis.scale(-1),A);   //在A上找支撑点
+        let support;
+        const gContext=gEngine.Core.mContext;
+
+        support=supportB;
+        if(contains(B.mVertex,supportA)){
+            support=supportA;
+        }
+
+        /* gContext.strokeStyle = 'purple';
+         gContext.beginPath();
+         gContext.moveTo(0,0);
+         gContext.lineTo(support.x, support.y);
+
+         gContext.closePath();
+         gContext.stroke();*/
+
+        collisionInfo.setInfo(minOverlap.overlap, minOverlap.axis, support);
+        return true;
+    }
+
+    findSupportPoint(axis, rect) {
+        let support=null;
+        let vertex;
+        let distance;
+        let nearestDistance=Number.MAX_VALUE;
+
+        const tempVertex= new Vec2(0,0);
+
+        const vertices=rect.mVertex;
+        for (let i = 0; i < vertices.length; i++) {
+            vertex = vertices[i];
+            tempVertex.x = vertex.x - this.mCenter.x;
+            tempVertex.y = vertex.y - this.mCenter.y;
+            distance = tempVertex.dot(axis);
+
+            if (distance < nearestDistance) {
+                nearestDistance = distance;
+                support = vertices[i];
+            }
+        }
+        return support;
+    }
+
+    collidedRectCirc(circle, collisionInfo) {
+        const circ2Pos=circle.mCenter;
+        let minDistance =circ2Pos.distance(this.mVertex[0]);
+        let nearestEdge = 0;
+        let i;
+
+        for (i = 1; i < this.mVertex.length; i++) {
+            //连接各顶点到圆心的向量，投影在各轴向量上
+            const distance=circ2Pos.distance(this.mVertex[i]);
+            if (distance < minDistance) {           //只要有一处投影长度大于0，说明圆心在矩形外
+                minDistance=distance;
+                nearestEdge=i;
+            }
+        }
+        const axis=[circle.mCenter.subtract(this.mVertex[nearestEdge]).normalize()];
+
+        const overlapAB=getOverLap(circle,this,axis);         //检测圆心和最近顶点组成的轴上是否有重合
+        if(overlapAB.overlap<=0){
+            return false;
+        }
+
+        //在B上寻找分离轴
+        const overlapBA=getOverLap(circle,this,this.mFaceNormal);          //检测圆心和最近顶点组成的轴上是否有重合
+        if(overlapBA.overlap<=0){
+            return false;
+        }
+
+        let minOverlap;
+        if(overlapAB.overlap<overlapBA.overlap){
+            minOverlap=overlapAB;
+        }else{
+            minOverlap=overlapBA;
+        }
+
+        //如果碰撞轴指向了圆则反转轴的方向
+        if (minOverlap.axis.dot( circle.mCenter.subtract( this.mCenter)) > 0) {
+            minOverlap.axis=minOverlap.axis.scale(-1);
+        }
+
+        collisionInfo.setInfo(minOverlap.overlap, minOverlap.axis, circle.mCenter.add(minOverlap.axis.scale(circle.mRadius-minOverlap.overlap)));
+        return true;
+    }
 }
 
-Polygon.prototype.rotate = function (angle) {
-    this.mAngle += angle;
-    var i;
-    for (i = 0; i < this.mVertex.length; i++) {
-        this.mVertex[i] = this.mVertex[i].rotate(this.mCenter, angle);
+var contains = (vertices, point) => {
+    for (let i = 0; i < vertices.length; i++) {
+        const vertice = vertices[i];
+        const nextVertice = vertices[(i + 1) % vertices.length];
+        if ((point.x - vertice.x) * (nextVertice.y - vertice.y) + (point.y - vertice.y) * (vertice.x - nextVertice.x) > 0) {
+            return false;
+        }
     }
-    this.mFaceNormal=this.getAxes();
-    return this;
+
+    return true;
 };
 
-Polygon.prototype.move = function (v) {
-    var i;
-    for (i = 0; i < this.mVertex.length; i++) {
-        this.mVertex[i] = this.mVertex[i].add(v);
+const projectToAxis = (vertices, axis) => {
+    const projection={};
+    let min = vertices[0].dot(axis);
+    let max = min;
+
+    for (let i = 1; i < vertices.length; i += 1) {
+        const dot = vertices[i].dot(axis);
+
+        if (dot > max) {
+            max = dot;
+        } else if (dot < min){
+            min = dot;
+        }
     }
-    this.mCenter = this.mCenter.add(v);
-    return this;
+
+    projection.min = min;
+    projection.max = max;
+    return projection;
 };
 
-Polygon.prototype.draw = function (context) {
-    context.save();
-    context.beginPath();
-    var vertices=this.mVertex;
-    for (var i = 0; i < vertices.length; i++) {
-        var j = (i + 1) % vertices.length;
-        context.moveTo(this.mVertex[i].x, this.mVertex[i].y);
-        context.lineTo(this.mVertex[j].x, this.mVertex[j].y);
+var getOverLap = (bodyA, bodyB, axes) => {
+    const result = { overlap: Number.MAX_VALUE };
+    let projectionA;
+    let projectionB;
+    let overlap;
+
+    for (const axis of axes) {
+        if(bodyA.mType=='Circle'){
+            bodyA.mVertex=[bodyA.mCenter.subtract(axis.scale(bodyA.mRadius)),bodyA.mCenter.add(axis.scale(bodyA.mRadius))]
+        }
+
+        projectionA=projectToAxis(bodyA.mVertex, axis);
+        projectionB=projectToAxis(bodyB.mVertex, axis);
+
+        overlap = Math.min(projectionA.max - projectionB.min, projectionB.max - projectionA.min);
+        if (overlap <= 0) {
+            result.overlap = overlap;
+            return result;
+        }
+
+
+        if (overlap < result.overlap) {
+            result.overlap = overlap;
+            result.axis = axis;
+        }
     }
-    context.closePath();
-    context.stroke();
 
-    context.translate(this.mVertex[0].x, this.mVertex[0].y);
-    context.rotate(this.mAngle);
-
-    context.restore();
+    return result;
 };
 
-Polygon.prototype.updateInertia = function () {
-    // Expect this.mInvMass to be already inverted!
-    if (this.mInvMass === 0) {
-        this.mInertia = 0;
-    } else {
-        this.mInertia=Vertices.inertia(this.mVertex,this.mMass);
-        this.mInertia = 1 / this.mInertia;
-    }
-    console.log(this.mInertia,'this.mInertia123')
-};
+export default Polygon;

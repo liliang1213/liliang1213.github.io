@@ -1,48 +1,7 @@
 import Vec2 from '../Lib/Vec2';
 import CollisionInfo from '../Lib/CollisionInfo';
 
-var gEngine = window.gEngine || {mAllObjects:[]};
-class Engine {
-    constructor() {
-        this.mWidth = 800;
-        this.mHeight = 450;
-
-        this.mCanvas = document.getElementById('canvas');
-        this.mContext = this.mCanvas.getContext('2d');
-        this.mCanvas.height = this.mHeight;
-        this.mCanvas.width = this.mWidth;
-
-        let mCurrentTime;
-        let mElapsedTime;
-        let mPreviousTime = Date.now();
-        let mLagTime = 0;
-        const kFPS = 60;          // Frames per second
-        const kFrameTime = 1 / kFPS;
-        const mUpdateIntervalInSeconds = kFrameTime;
-        const kMPF = 1000 * kFrameTime; // Milliseconds per frame.
-
-        this.instance = null;
-    }
-    // 构造一个广为人知的接口，供用户对该类进行实例化
-    static getInstance() {
-        if(!this.instance) {
-            this.instance = new Engine();
-        }
-        return this.instance;
-    }
-
-    draw (){
-        this.mContext.clearRect(0, 0, this.mWidth, this.mHeight);
-        let i;
-        for (i = 0; i < gEngine.mAllObjects.length; i++) {
-            mContext.strokeStyle = 'blue';
-            if (i === 3) {
-                mContext.strokeStyle = 'red';
-            }
-            gEngine.mAllObjects[i].draw(mContext);
-        }
-    };
-}
+var gEngine = window.gEngine || {};
 // initialize the variable while ensuring it is not redefined
 gEngine.Core = ((() => {
     let mCanvas;
@@ -65,22 +24,24 @@ gEngine.Core = ((() => {
     const kFrameTime = 1 / kFPS;
     const mUpdateIntervalInSeconds = kFrameTime;
     const kMPF = 1000 * kFrameTime; // Milliseconds per frame.
+    var mAllObjects = [];
+
 
     const draw = () => {
         mContext.clearRect(0, 0, mWidth, mHeight);
         let i;
-        for (i = 0; i < gEngine.mAllObjects.length; i++) {
+        for (i = 0; i < mAllObjects.length; i++) {
             mContext.strokeStyle = 'blue';
             if (i === 3) {
                 mContext.strokeStyle = 'red';
             }
-            gEngine.mAllObjects[i].draw(mContext);
+            mAllObjects[i].draw(mContext);
         }
     };
     const update = () => {
         let i;
-        for (i = 0; i < gEngine.mAllObjects.length; i++) {
-            gEngine.mAllObjects[i].update(mContext);
+        for (i = 0; i < mAllObjects.length; i++) {
+            mAllObjects[i].update(mContext);
         }
     };
     const runGameLoop = () => {
@@ -107,17 +68,17 @@ gEngine.Core = ((() => {
     };
 
     const getAllObject=()=>{
-        return gEngine.mAllObjects;
+        return mAllObjects;
     };
 
     const addObject=(obj)=>{
-        gEngine.mAllObjects.push(obj);
+        mAllObjects.push(obj);
     };
 
     var mPublic = {
         initializeEngineCore: initializeEngineCore,
         getAllObject: getAllObject,
-        mAllObjects:gEngine.mAllObjects,
+        mAllObjects:mAllObjects,
         addObject:addObject,
         mWidth: mWidth,
         mHeight: mHeight,

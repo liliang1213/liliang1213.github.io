@@ -1,4 +1,5 @@
 import MyGame from './MyGame.js';
+import gEngine from './EngineCore/core';
 
-var game = new MyGame();
+new MyGame();
 gEngine.Core.initializeEngineCore()

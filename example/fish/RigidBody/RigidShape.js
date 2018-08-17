@@ -1,11 +1,11 @@
 import Vec2 from '../Lib/Vec2';
-import gEngine from '../EngineCore/Core';
+import Engine from '../EngineCore/Core';
 
 class RigidShape {
     constructor(center, mass, friction, restitution) {
-
         this.mCenter = center;
         this.mInertia = 0;
+        this.collided=false;
         this.mMass=mass;
         if (mass !== undefined) {
             this.mInvMass = mass;
@@ -29,11 +29,10 @@ class RigidShape {
 
         if (this.mInvMass !== 0) {
             this.mInvMass = 1 / this.mInvMass;
-            this.mAcceleration = gEngine.Core.mGravity;
+            this.mAcceleration = Engine.gravity;
         } else {
             this.mAcceleration = new Vec2(0, 0);
         }
-
         //angle
         this.mAngle = 0;
 
@@ -42,41 +41,12 @@ class RigidShape {
         this.mAngularAcceleration = 0;
 
         this.mBoundRadius = 0;
-        console.log(gEngine.Core.mAllObjects,'gEngine.Core.mAllObjects');
-        console.log(gEngine.Core,'gEngine.Core')
-        gEngine.Core.addObject(this);
-    }
-
-    updateMass(delta) {
-        let mass;
-        if (this.mInvMass !== 0) {
-            mass = 1 / this.mInvMass;
-        } else {
-            mass = 0;
-        }
-
-        mass += delta;
-        if (mass <= 0) {
-            this.mInvMass = 0;
-            this.mVelocity = new Vec2(0, 0);
-            this.mAcceleration = new Vec2(0, 0);
-            this.mAngularVelocity = 0;
-            this.mAngularAcceleration = 0;
-        } else {
-            this.mInvMass = 1 / mass;
-            this.mAcceleration = gEngine.Core.mGravity;
-        }
-        this.updateInertia();
-    }
-
-    updateInertia() {
-        // subclass must define this.
-        // must work with inverted this.mInvMass
+        Engine.addObject(this);
     }
 
     update() {
-        if (gEngine.Core.mMovement) {
-            const dt = gEngine.Core.mUpdateIntervalInSeconds;
+        if (Engine.mMovement) {
+            const dt = Engine.mUpdateIntervalInSeconds;
             //v += a*t
             this.mVelocity = this.mVelocity.add(this.mAcceleration.scale(dt));
             //s += v*t
@@ -85,14 +55,15 @@ class RigidShape {
             this.mAngularVelocity += this.mAngularAcceleration * dt;
             this.rotate(this.mAngularVelocity * dt);
         }
-        const width = gEngine.Core.mWidth;
-        const height = gEngine.Core.mHeight;
-        if (this.mCenter.x < 0 || this.mCenter.x > width || this.mCenter.y < 0 || this.mCenter.y > height) {
-            const index = gEngine.Core.mAllObjects.indexOf(this);
-            if (index > -1)
-                gEngine.Core.mAllObjects.splice(index, 1);
-        }
+        /*const width = Engine.mWidth;
+        const height = Engine.mHeight;
+        if (this.mCenter.x+this.mBoundRadius < 0 || this.mCenter.x-this.mBoundRadius > width || this.mCenter.y+this.mBoundRadius < 0 || this.mCenter.y-this.mBoundRadius > height) {
+            const index = Engine.mAllObjects.indexOf(this);
 
+            if (index > -1) {
+                Engine.mAllObjects.splice(index, 1);
+            }
+        }*/
     }
 
     boundTest(otherShape) {

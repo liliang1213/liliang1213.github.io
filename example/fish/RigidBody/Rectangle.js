@@ -1,5 +1,6 @@
 import RigidShape from './RigidShape';
 import Vec2 from '../Lib/Vec2';
+import utils from '../Lib/utils';
 
 class Rectangle extends RigidShape{
     constructor(center, width, height, mass, friction, restitution) {
@@ -66,6 +67,9 @@ class Rectangle extends RigidShape{
         context.strokeRect(0, 0, this.mWidth, this.mHeight);
 
         context.restore();
+        var dist=new Vec2(500,400);
+        utils.drawLine(new Vec2(0,0),dist);
+        utils.drawLine(this.mCenter,this.mVertex[1].add(this.mVertex[2]).scale(0.5));
     }
 
     updateInertia() {
@@ -121,7 +125,6 @@ class Rectangle extends RigidShape{
         const supportB=A.findSupportPoint(minOverlap.axis,B);   //在B上找支撑点,A是小盒子
         const supportA=B.findSupportPoint(minOverlap.axis.scale(-1),A);   //在A上找支撑点
         let support;
-        const gContext=gEngine.Core.mContext;
 
         support=supportB;
         if(contains(B.mVertex,supportA)){

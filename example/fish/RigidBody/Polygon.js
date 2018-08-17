@@ -1,5 +1,6 @@
 import RigidShape from './RigidShape';
 import Vec2 from '../Lib/Vec2';
+import Engine from '../EngineCore/Core';
 
 const Vertices={};
 
@@ -136,7 +137,6 @@ class Polygon extends RigidShape{
             this.mInertia=Vertices.inertia(this.mVertex,this.mMass);
             this.mInertia = 1 / this.mInertia;
         }
-        console.log(this.mInertia,'this.mInertia123')
     }
 
     collisionTest(otherShape, collisionInfo) {
@@ -178,7 +178,7 @@ class Polygon extends RigidShape{
         const supportB=A.findSupportPoint(minOverlap.axis,B);   //在B上找支撑点,A是小盒子
         const supportA=B.findSupportPoint(minOverlap.axis.scale(-1),A);   //在A上找支撑点
         let support;
-        const gContext=gEngine.Core.mContext;
+        const gContext=Engine.mContext;
 
         support=supportB;
         if(contains(B.mVertex,supportA)){

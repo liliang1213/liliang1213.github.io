@@ -1,5 +1,9 @@
 import MyGame from './MyGame.js';
-import gEngine from './EngineCore/core';
+import Engine from './EngineCore/Core';
+import Vec2 from './Lib/Vec2';
 
-new MyGame();
-gEngine.Core.initializeEngineCore()
+Engine.init({
+    gravity:new Vec2(0, 0),
+    collisionResolve:false
+});
+MyGame();

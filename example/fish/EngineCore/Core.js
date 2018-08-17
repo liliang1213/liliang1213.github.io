@@ -1,161 +1,147 @@
 import Vec2 from '../Lib/Vec2';
 import CollisionInfo from '../Lib/CollisionInfo';
 
-var gEngine = window.gEngine || {mAllObjects:[]};
 class Engine {
     constructor() {
         this.mWidth = 800;
         this.mHeight = 450;
+        this.gravity = new Vec2(0, 10);
+        this.collisionResolve=true;
+
+        this.mPositionalCorrectionFlag = true;
+        this.mRelaxationCount = 15;                  // number of relaxation iteration
+        this.mPosCorrectionRate = 0.8;               // percentage of separation to project objects
 
         this.mCanvas = document.getElementById('canvas');
         this.mContext = this.mCanvas.getContext('2d');
         this.mCanvas.height = this.mHeight;
         this.mCanvas.width = this.mWidth;
 
-        let mCurrentTime;
-        let mElapsedTime;
-        let mPreviousTime = Date.now();
-        let mLagTime = 0;
-        const kFPS = 60;          // Frames per second
-        const kFrameTime = 1 / kFPS;
-        const mUpdateIntervalInSeconds = kFrameTime;
-        const kMPF = 1000 * kFrameTime; // Milliseconds per frame.
+        this.mCurrentTime=0;
+        this.mElapsedTime=0;
+        this.mPreviousTime = Date.now();
+        this.mLagTime = 0;
+        this.kFPS = 60;          // Frames per second
+        this.kFrameTime = 1 / this.kFPS;
+        this.mUpdateIntervalInSeconds = this.kFrameTime;
+        this.kMPF = 1000 * this.kFrameTime; // Milliseconds per frame.
 
-        this.instance = null;
-    }
-    // 构造一个广为人知的接口，供用户对该类进行实例化
-    static getInstance() {
-        if(!this.instance) {
-            this.instance = new Engine();
-        }
-        return this.instance;
+        this.mAllObjects = [];
+        this.mMovement = true;
     }
 
-    draw (){
+    addObject(obj) {
+        this.mAllObjects.push(obj);
+    }
+
+    getAllObject(){
+        return this.mAllObjects;
+    }
+
+    draw(){
         this.mContext.clearRect(0, 0, this.mWidth, this.mHeight);
         let i;
-        for (i = 0; i < gEngine.mAllObjects.length; i++) {
-            mContext.strokeStyle = 'blue';
-            if (i === 3) {
-                mContext.strokeStyle = 'red';
+        for (i = 0; i < this.mAllObjects.length; i++) {
+
+            if(this.mAllObjects[i].collided){
+                this.mContext.strokeStyle = 'red';
+            }else{
+                this.mContext.strokeStyle = 'blue';
             }
-            gEngine.mAllObjects[i].draw(mContext);
+            this.mAllObjects[i].draw(this.mContext);
         }
     };
-}
-// initialize the variable while ensuring it is not redefined
-gEngine.Core = ((() => {
-    let mCanvas;
-    let mContext;
-    const mWidth = 800;
-    const mHeight = 450;
-    mCanvas = document.getElementById('canvas');
-    mContext = mCanvas.getContext('2d');
-    mCanvas.height = mHeight;
-    mCanvas.width = mWidth;
 
-    const mGravity = new Vec2(0, 200);
-    const mMovement = true;
+    init(opts){
+        Object.assign(this,opts);
+        this.runGameLoop();
+    }
 
-    let mCurrentTime;
-    let mElapsedTime;
-    let mPreviousTime = Date.now();
-    let mLagTime = 0;
-    const kFPS = 60;          // Frames per second
-    const kFrameTime = 1 / kFPS;
-    const mUpdateIntervalInSeconds = kFrameTime;
-    const kMPF = 1000 * kFrameTime; // Milliseconds per frame.
-
-    const draw = () => {
-        mContext.clearRect(0, 0, mWidth, mHeight);
+    update(){
         let i;
-        for (i = 0; i < gEngine.mAllObjects.length; i++) {
-            mContext.strokeStyle = 'blue';
-            if (i === 3) {
-                mContext.strokeStyle = 'red';
-            }
-            gEngine.mAllObjects[i].draw(mContext);
+        let mAllObjects = this.getAllObject();
+        for (i = 0; i < mAllObjects.length; i++) {
+            mAllObjects[i].update(this.mContext);
         }
-    };
-    const update = () => {
-        let i;
-        for (i = 0; i < gEngine.mAllObjects.length; i++) {
-            gEngine.mAllObjects[i].update(mContext);
+    }
+
+    remove(obj){
+        const index = this.mAllObjects.indexOf(obj);
+
+        if (index > -1) {
+            this.mAllObjects.splice(index, 1);
         }
-    };
-    const runGameLoop = () => {
+    }
+
+    runGameLoop(){
         requestAnimationFrame(() => {
-            runGameLoop();
+            this.runGameLoop();
         });
 
-        //      compute how much time has elapsed since we last runGameLoop was executed
-        mCurrentTime = Date.now();
-        mElapsedTime = mCurrentTime - mPreviousTime;
-        mPreviousTime = mCurrentTime;
-        mLagTime += mElapsedTime;
+        this.mCurrentTime = Date.now();
+        this.mElapsedTime = this.mCurrentTime - this.mPreviousTime;
+        this.mPreviousTime = this.mCurrentTime;
+        this.mLagTime += this.mElapsedTime;
 
-        draw();
-
-        while (mLagTime >= kMPF) {
-            mLagTime -= kMPF;
-            gEngine.Physics.collision();
-            update();
+        while (this.mLagTime >= this.kMPF) {
+            this.mLagTime -= this.kMPF;
+            this.collision();
+            this.update();
         }
+        this.draw();
+    }
+
+
+    collision(){
+        let i;
+        let j;
+        let k;
+        const collisionInfo = new CollisionInfo();
+        var mAllObjects=this.getAllObject();
+        // for (k = 0; k < this.mRelaxationCount; k++) {
+        for (var l = 0; l < mAllObjects.length; l++) {
+            mAllObjects[l].collided=false;
+        }
+        for (i = 0; i < mAllObjects.length; i++) {
+            for (j = i + 1; j < mAllObjects.length; j++) {
+                if (mAllObjects[i].boundTest(mAllObjects[j])) {
+                    if (mAllObjects[i].collisionTest(mAllObjects[j], collisionInfo)) {
+                        mAllObjects[i].collided=true;
+                        mAllObjects[j].collided=true;
+                        if(this.collisionResolve) {
+                            if (collisionInfo.getNormal().dot(mAllObjects[j].mCenter.subtract(mAllObjects[i].mCenter)) < 0) {
+                                collisionInfo.changeDir();
+                            }
+                            this.resolveCollision(mAllObjects[i], mAllObjects[j], collisionInfo);
+                        }
+                    }
+                }
+            }
+        }
+        // }
     };
-    const initializeEngineCore = () => {
-        runGameLoop();
-    };
-
-    const getAllObject=()=>{
-        return gEngine.mAllObjects;
-    };
-
-    const addObject=(obj)=>{
-        gEngine.mAllObjects.push(obj);
-    };
-
-    var mPublic = {
-        initializeEngineCore: initializeEngineCore,
-        getAllObject: getAllObject,
-        mAllObjects:gEngine.mAllObjects,
-        addObject:addObject,
-        mWidth: mWidth,
-        mHeight: mHeight,
-        mContext: mContext,
-        mGravity: mGravity,
-        mUpdateIntervalInSeconds: mUpdateIntervalInSeconds,
-        mMovement: mMovement
-    };
-    return mPublic;
-})());
 
 
-gEngine.Physics = ((() => {
-
-    const mPositionalCorrectionFlag = true;
-    const mRelaxationCount = 15;                  // number of relaxation iteration
-    const mPosCorrectionRate = 0.8;               // percentage of separation to project objects
-
-    const positionalCorrection = (s1, s2, collisionInfo) => {
+    positionalCorrection(s1, s2, collisionInfo){
         const s1InvMass = s1.mInvMass;
         const s2InvMass = s2.mInvMass;
 
-        const num = collisionInfo.getDepth() / (s1InvMass + s2InvMass) * mPosCorrectionRate;
+        const num = collisionInfo.getDepth() / (s1InvMass + s2InvMass) * this.mPosCorrectionRate;
         const correctionAmount = collisionInfo.getNormal().scale(num);
 
         s1.move(correctionAmount.scale(-s1InvMass));
         s2.move(correctionAmount.scale(s2InvMass));
-    };
+    }
 
-    const resolveCollision = (s1, s2, collisionInfo) => {
+    resolveCollision (s1, s2, collisionInfo) {
 
         if ((s1.mInvMass === 0) && (s2.mInvMass === 0)) {
             return;
         }
 
         //  correct positions
-        if (gEngine.Physics.mPositionalCorrectionFlag) {
-            positionalCorrection(s1, s2, collisionInfo);
+        if (this.mPositionalCorrectionFlag) {
+            this.positionalCorrection(s1, s2, collisionInfo);
         }
 
         const n = collisionInfo.getNormal();
@@ -230,40 +216,7 @@ gEngine.Physics = ((() => {
         s2.mVelocity = s2.mVelocity.add(impulse.scale(s2.mInvMass));
         s1.mAngularVelocity -= R1crossT * jT * s1.mInertia;
         s2.mAngularVelocity += R2crossT * jT * s2.mInertia;
-    };
+    }
+}
 
-    const collision = () => {
-        let i;
-        let j;
-        let k;
-        const collisionInfo = new CollisionInfo();
-        var mAllObjects=gEngine.Core.getAllObject();
-        for (k = 0; k < mRelaxationCount; k++) {
-            for (i = 0; i < mAllObjects.length; i++) {
-                for (j = i + 1; j < mAllObjects.length; j++) {
-                    if (mAllObjects[i].boundTest(mAllObjects[j])) {
-                        if (mAllObjects[i].collisionTest(mAllObjects[j], collisionInfo)) {
-                            //make sure the normal is always from object[i] to object[j]
-                            if (collisionInfo.getNormal().dot(mAllObjects[j].mCenter.subtract(mAllObjects[i].mCenter)) < 0) {
-                                collisionInfo.changeDir();
-                            }
-
-                            //draw collision info (a black line that shows normal)
-                            //drawCollisionInfo(collisionInfo, gEngine.Core.mContext);
-
-                            resolveCollision(mAllObjects[i], mAllObjects[j], collisionInfo);
-                        }
-                    }
-                }
-            }
-        }
-    };
-    const mPublic = {
-        collision: collision,
-        mPositionalCorrectionFlag: mPositionalCorrectionFlag
-    };
-
-    return mPublic;
-})());
-
-export default gEngine;
+export default new Engine();

@@ -1,5 +1,8 @@
 class Vec2 {
     constructor(x, y) {
+        if(x===undefined||y===undefined){
+            console.error('Vec2 construct with error params');
+        }
         this.x = x;
         this.y = y;
     }

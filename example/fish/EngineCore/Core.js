@@ -40,9 +40,8 @@ class Engine {
 
     draw(){
         this.mContext.clearRect(0, 0, this.mWidth, this.mHeight);
-        let i;
-        for (i = 0; i < this.mAllObjects.length; i++) {
-
+        let i=this.mAllObjects.length;
+        while(i--){
             if(this.mAllObjects[i].collided){
                 this.mContext.strokeStyle = 'red';
             }else{
@@ -58,9 +57,9 @@ class Engine {
     }
 
     update(){
-        let i;
         let mAllObjects = this.getAllObject();
-        for (i = 0; i < mAllObjects.length; i++) {
+        let i=mAllObjects.length;
+        while(i--){
             mAllObjects[i].update(this.mContext);
         }
     }
@@ -95,11 +94,9 @@ class Engine {
     collision(){
         let i;
         let j;
-        let k;
         const collisionInfo = new CollisionInfo();
-        var mAllObjects=this.getAllObject();
-        // for (k = 0; k < this.mRelaxationCount; k++) {
-        for (var l = 0; l < mAllObjects.length; l++) {
+        let mAllObjects=this.getAllObject();
+        for (let l = 0; l < mAllObjects.length; l++) {
             mAllObjects[l].collided=false;
         }
         for (i = 0; i < mAllObjects.length; i++) {
@@ -118,7 +115,6 @@ class Engine {
                 }
             }
         }
-        // }
     };
 
 

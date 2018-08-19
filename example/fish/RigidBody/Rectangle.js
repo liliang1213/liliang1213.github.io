@@ -18,7 +18,6 @@ class Rectangle extends RigidShape{
         this.mVertex[2] = new Vec2(center.x + width / 2, center.y + height / 2);
         this.mVertex[3] = new Vec2(center.x - width / 2, center.y + height / 2);
         //0--Top;1--Right;2--Bottom;3--Left
-        //mFaceNormal is normal of face toward outside of matter
         this.mFaceNormal=this.getAxes();
         this.updateInertia();
     }
@@ -61,15 +60,14 @@ class Rectangle extends RigidShape{
 
     draw(context) {
         context.save();
-
+        context.fillStyle=this.collided?"red":"green";
         context.translate(this.mVertex[0].x, this.mVertex[0].y);
         context.rotate(this.mAngle);
-        context.strokeRect(0, 0, this.mWidth, this.mHeight);
-
+        context.fillRect(0, 0, this.mWidth, this.mHeight);
         context.restore();
-        var dist=new Vec2(500,400);
-        utils.drawLine(new Vec2(0,0),dist);
-        utils.drawLine(this.mCenter,this.mVertex[1].add(this.mVertex[2]).scale(0.5));
+        // var dist=new Vec2(500,400);
+        // utils.drawLine(new Vec2(0,0),dist);
+        // utils.drawLine(this.mCenter,this.mVertex[1].add(this.mVertex[2]).scale(0.5));
     }
 
     updateInertia() {

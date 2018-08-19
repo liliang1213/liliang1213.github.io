@@ -18,13 +18,12 @@ class Circle extends RigidShape{
     }
 
     draw(context) {
+        context.fillStyle=this.collided?'red':'yellow';
         context.beginPath();
-
         context.arc(this.mCenter.x, this.mCenter.y, this.mRadius, 0, Math.PI * 2, true);
-
         context.moveTo(this.mStartpoint.x, this.mStartpoint.y);
         context.lineTo(this.mCenter.x, this.mCenter.y);
-
+        context.fill();
         context.closePath();
         context.stroke();
     }

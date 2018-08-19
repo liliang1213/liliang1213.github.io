@@ -44,6 +44,13 @@ class RigidShape {
         Engine.addObject(this);
     }
 
+    setStatic(){
+        this.mAcceleration.x=0;
+        this.mAcceleration.y=0;
+        this.mVelocity.x=0;
+        this.mVelocity.y=0;
+    }
+
     update() {
         if (Engine.mMovement) {
             const dt = Engine.mUpdateIntervalInSeconds;
@@ -71,7 +78,6 @@ class RigidShape {
         const rSum = this.mBoundRadius + otherShape.mBoundRadius;
         const dist = vFrom1to2.length();
         if (dist > rSum) {
-            //not overlapping
             return false;
         }
         return true;

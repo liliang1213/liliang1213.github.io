@@ -3,11 +3,12 @@ import Vec2 from '../Lib/Vec2';
 import utils from '../Lib/utils';
 
 class Rectangle extends RigidShape{
-    constructor(center, width, height, mass, friction, restitution) {
-        super(center, mass, friction, restitution);
+    constructor(opts) {
+        super(opts);
         this.mType = "Rectangle";
-        this.mWidth = width;
-        this.mHeight = height;
+        this.mWidth = opts.width;
+        this.mHeight = opts.height;
+        let center=opts.pos,width=opts.width,height=opts.height;
         this.mBoundRadius = Math.sqrt(width * width + height * height) / 2;
         this.mVertex = [];
         this.mFaceNormal = [];
@@ -55,6 +56,8 @@ class Rectangle extends RigidShape{
             this.mVertex[i] = this.mVertex[i].add(v);
         }
         this.mCenter = this.mCenter.add(v);
+        this.x=this.mCenter.x;
+        this.y=this.mCenter.y;
         return this;
     }
 

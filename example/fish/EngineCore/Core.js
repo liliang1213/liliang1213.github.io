@@ -28,6 +28,7 @@ class Engine {
 
         this.mAllObjects = [];
         this.mMovement = true;
+        this.collisionList=[];
     }
 
     addObject(obj) {
@@ -90,30 +91,57 @@ class Engine {
         this.draw();
     }
 
+    addCollisionList(obj){
+        this.collisionList.push(obj);
+    }
+
+    removeCollisionList(obj){
+        const index = this.collisionList.indexOf(obj);
+
+        if (index > -1) {
+            this.collisionList.splice(index, 1);
+        }
+    }
 
     collision(){
-        let i;
-        let j;
         const collisionInfo = new CollisionInfo();
+        let collisionList=this.collisionList;
         let mAllObjects=this.getAllObject();
-        for (let l = 0; l < mAllObjects.length; l++) {
+        let collisionObject=[];
+        let l=mAllObjects.length;
+        while(l--){
             mAllObjects[l].collided=false;
+            if(mAllObjects[l].collisionGroup==1){
+                if(collisionList.indexOf(mAllObjects[l])<0){
+                    collisionObject.push(mAllObjects[l])
+                }
+            }
         }
-        for (i = 0; i < mAllObjects.length; i++) {
-            for (j = i + 1; j < mAllObjects.length; j++) {
-                if (mAllObjects[i].boundTest(mAllObjects[j])) {
-                    if (mAllObjects[i].collisionTest(mAllObjects[j], collisionInfo)) {
-                        mAllObjects[i].collided=true;
-                        mAllObjects[j].collided=true;
-                        if(this.collisionResolve) {
-                            if (collisionInfo.getNormal().dot(mAllObjects[j].mCenter.subtract(mAllObjects[i].mCenter)) < 0) {
-                                collisionInfo.changeDir();
+
+        let i=collisionList.length;
+        try {
+            while (i--) {
+                let j=collisionObject.length;
+                while (j--) {
+                    if (collisionList[i] != collisionObject[j] && collisionList[i]) {
+                        if (collisionList[i].boundTest(collisionObject[j])) {
+                            if (collisionList[i].collisionTest(collisionObject[j], collisionInfo)) {
+                                collisionList[i].collided = true;
+                                collisionObject[j].collided = true;
+                                collisionList[i].emit('collision', collisionObject[j]);
+                                if (this.collisionResolve) {
+                                    if (collisionInfo.getNormal().dot(collisionObject[j].mCenter.subtract(collisionList[i].mCenter)) < 0) {
+                                        collisionInfo.changeDir();
+                                    }
+                                    this.resolveCollision(collisionList[i], collisionObject[j], collisionInfo);
+                                }
                             }
-                            this.resolveCollision(mAllObjects[i], mAllObjects[j], collisionInfo);
                         }
                     }
                 }
             }
+        }catch(e){
+            debugger;
         }
     };
 

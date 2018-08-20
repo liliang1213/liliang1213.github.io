@@ -2,18 +2,21 @@ import RigidShape from './RigidShape';
 import Vec2 from '../Lib/Vec2';
 
 class Circle extends RigidShape{
-    constructor(center, radius, mass, friction, restitution) {
-        super(center, mass, friction, restitution);
+    constructor(opts) {
+        super(opts);
         this.mType = "Circle";
-        this.mRadius = radius;
-        this.mBoundRadius = radius;
-        this.mStartpoint = new Vec2(center.x, center.y - radius);
+        this.mRadius = opts.radius;
+        this.mBoundRadius = opts.radius;
+        let pos=opts.pos;
+        this.mStartpoint = new Vec2(pos.x, pos.y - this.mRadius);
         this.updateInertia();
     }
 
     move(s) {
         this.mStartpoint = this.mStartpoint.add(s);
         this.mCenter = this.mCenter.add(s);
+        this.x=this.mCenter.x;
+        this.y=this.mCenter.y;
         return this;
     }
 

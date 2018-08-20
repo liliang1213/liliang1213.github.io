@@ -1,10 +1,18 @@
 import Vec2 from '../Lib/Vec2';
 import Engine from '../EngineCore/Core';
+import EventEmitter from 'events';
 
-class RigidShape {
-    constructor(center, mass, friction, restitution) {
-        this.mCenter = center;
+class RigidShape extends EventEmitter{
+    constructor(opts) {
+        let mass=opts.mass;
+        let friction=opts.friction;
+        let restitution=opts.restitution;
+        super();
+        this.mCenter = opts.pos;
+        this.x=this.mCenter.x;
+        this.y=this.mCenter.y;
         this.mInertia = 0;
+        this.collisionGroup=opts.collisionGroup||1;
         this.collided=false;
         this.mMass=mass;
         if (mass !== undefined) {
@@ -62,6 +70,7 @@ class RigidShape {
             this.mAngularVelocity += this.mAngularAcceleration * dt;
             this.rotate(this.mAngularVelocity * dt);
         }
+        this.emit('update',this);
         /*const width = Engine.mWidth;
         const height = Engine.mHeight;
         if (this.mCenter.x+this.mBoundRadius < 0 || this.mCenter.x-this.mBoundRadius > width || this.mCenter.y+this.mBoundRadius < 0 || this.mCenter.y-this.mBoundRadius > height) {
@@ -81,6 +90,20 @@ class RigidShape {
             return false;
         }
         return true;
+    }
+
+    addCollisionListener(callback){
+        if(typeof callback!='function'){
+            console.error('No collision callback function');
+        }
+        Engine.addCollisionList(this);
+        let collisionCb=function(){
+            let args=Array.prototype.slice.call(arguments)
+            callback.apply(this,args)
+            this.removeListener('collision',collisionCb);
+        };
+        this.on('collision',collisionCb);
+
     }
 }
 

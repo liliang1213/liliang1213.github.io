@@ -53,12 +53,14 @@ Vertices.inertia = (vertices, mass) => {
 };
 
 class Polygon extends RigidShape{
-    constructor(vertices, mass, friction, restitution) {
-        const center=Vertices.centre(vertices);
-        super(center, mass, friction, restitution);
+    constructor(opts) {
+        super(opts);
         this.mType = "Polygon";
-
-        this.mVertex = vertices;
+        this.mCenter=Vertices.centre(opts.vertices);
+        this.mVertex=[];
+        for(let i=0;i<opts.vertices.length;i++){
+            this.mVertex[i] = opts.pos.add(opts.vertices[i]);
+        }
         this.mBoundRadius = this.getRadius(this.mVertex);
         this.mFaceNormal=this.getAxes();
         this.updateInertia();
@@ -108,6 +110,8 @@ class Polygon extends RigidShape{
             this.mVertex[i] = this.mVertex[i].add(v);
         }
         this.mCenter = this.mCenter.add(v);
+        this.x=this.mCenter.x;
+        this.y=this.mCenter.y;
         return this;
     }
 

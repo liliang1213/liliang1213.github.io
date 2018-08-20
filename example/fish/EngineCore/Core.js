@@ -1,21 +1,16 @@
 import Vec2 from '../Lib/Vec2';
 import CollisionInfo from '../Lib/CollisionInfo';
+import Drawing from '../Drawing';
 
 class Engine {
-    constructor() {
-        this.mWidth = 800;
-        this.mHeight = 450;
+    constructor(opts) {
+        this.drawing=opts.drawing;
         this.gravity = new Vec2(0, 10);
         this.collisionResolve=true;
 
         this.mPositionalCorrectionFlag = true;
         this.mRelaxationCount = 15;                  // number of relaxation iteration
         this.mPosCorrectionRate = 0.8;               // percentage of separation to project objects
-
-        this.mCanvas = document.getElementById('canvas');
-        this.mContext = this.mCanvas.getContext('2d');
-        this.mCanvas.height = this.mHeight;
-        this.mCanvas.width = this.mWidth;
 
         this.mCurrentTime=0;
         this.mElapsedTime=0;
@@ -40,16 +35,7 @@ class Engine {
     }
 
     draw(){
-        this.mContext.clearRect(0, 0, this.mWidth, this.mHeight);
-        let i=this.mAllObjects.length;
-        while(i--){
-            if(this.mAllObjects[i].collided){
-                this.mContext.strokeStyle = 'red';
-            }else{
-                this.mContext.strokeStyle = 'blue';
-            }
-            this.mAllObjects[i].draw(this.mContext);
-        }
+        this.drawing.draw(this.mAllObjects);
     };
 
     init(opts){
@@ -61,7 +47,7 @@ class Engine {
         let mAllObjects = this.getAllObject();
         let i=mAllObjects.length;
         while(i--){
-            mAllObjects[i].update(this.mContext);
+            mAllObjects[i].update();
         }
     }
 
@@ -243,4 +229,6 @@ class Engine {
     }
 }
 
-export default new Engine();
+export default new Engine({
+    drawing:new Drawing
+});

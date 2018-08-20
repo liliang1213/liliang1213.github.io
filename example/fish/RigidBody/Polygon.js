@@ -115,26 +115,6 @@ class Polygon extends RigidShape{
         return this;
     }
 
-    draw(context) {
-        context.save();
-        context.fillStyle=this.collided?'red':'blue';
-        context.beginPath();
-        const vertices=this.mVertex;
-        for (let i = 0; i < vertices.length; i++) {
-            const j = (i + 1) % vertices.length;
-            if(i==0) {
-                context.moveTo(this.mVertex[i].x, this.mVertex[i].y);
-            }
-            context.lineTo(this.mVertex[j].x, this.mVertex[j].y);
-        }
-        context.translate(this.mVertex[0].x, this.mVertex[0].y);
-        context.rotate(this.mAngle);
-        context.closePath();
-        context.stroke();
-        context.fill();
-        context.restore();
-    }
-
     updateInertia() {
         // Expect this.mInvMass to be already inverted!
         if (this.mInvMass === 0) {

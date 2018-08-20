@@ -136,7 +136,7 @@ function MyGame() {
         fish.moving()
     }, 50);
 
-    Engine.mCanvas.onmousedown = function (event) {
+    Engine.drawing.mCanvas.onmousedown = function (event) {
         // console.log(event,"event");
         var angle = Math.atan2(event.clientY - cannon.y, event.clientX - cannon.x)
         cannon.rotate(angle - cannon.mAngle);

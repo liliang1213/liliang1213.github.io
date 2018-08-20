@@ -160,8 +160,8 @@ function MyGame() {
         });
 
         bullet.on('update',(bullet)=>{
-            let width = Engine.mWidth;
-            let height = Engine.mHeight;
+            let width = Engine.width;
+            let height = Engine.height;
             if (bullet.x< 0 || bullet.x > width) {
                 bullet.mVelocity.x=-bullet.mVelocity.x;
                 bullet.rotate(Math.atan2(bullet.mVelocity.y,bullet.mVelocity.x)-bullet.mAngle)

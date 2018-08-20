@@ -1,7 +1,7 @@
 class Drawing{
-    constructor(){
-        this.mWidth = 800;
-        this.mHeight = 450;
+    constructor(opts){
+        this.mWidth = opts.width;
+        this.mHeight = opts.height;
 
         this.mCanvas = document.getElementById('canvas');
         this.context = this.mCanvas.getContext('2d');

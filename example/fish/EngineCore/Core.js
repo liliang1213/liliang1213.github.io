@@ -4,7 +4,12 @@ import Drawing from '../Drawing';
 
 class Engine {
     constructor(opts) {
-        this.drawing=opts.drawing;
+        this.width=opts.width;
+        this.height=opts.height;
+        this.drawing=new opts.drawing({
+            width:this.width,
+            height:this.height
+        });
         this.gravity = new Vec2(0, 10);
         this.collisionResolve=true;
 
@@ -230,5 +235,7 @@ class Engine {
 }
 
 export default new Engine({
-    drawing:new Drawing
+    width:800,
+    height:450,
+    drawing:Drawing
 });

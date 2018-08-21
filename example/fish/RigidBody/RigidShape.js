@@ -67,19 +67,10 @@ class RigidShape extends EventEmitter{
             //s += v*t
             this.move(this.mVelocity.scale(dt));
 
-            this.mAngularVelocity += this.mAngularAcceleration * dt;
-            this.rotate(this.mAngularVelocity * dt);
+           /* this.mAngularVelocity += this.mAngularAcceleration * dt;
+            this.rotate(this.mAngularVelocity * dt);*/
         }
         this.emit('update',this);
-        /*const width = Engine.mWidth;
-        const height = Engine.mHeight;
-        if (this.mCenter.x+this.mBoundRadius < 0 || this.mCenter.x-this.mBoundRadius > width || this.mCenter.y+this.mBoundRadius < 0 || this.mCenter.y-this.mBoundRadius > height) {
-            const index = Engine.mAllObjects.indexOf(this);
-
-            if (index > -1) {
-                Engine.mAllObjects.splice(index, 1);
-            }
-        }*/
     }
 
     boundTest(otherShape) {

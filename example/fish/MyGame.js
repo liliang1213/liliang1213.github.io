@@ -48,13 +48,13 @@ class MovingPath extends EventEmitter {
                 var steer = desire.subtract(obj.mVelocity);
                 obj.mAcceleration = steer;
                 this.judge = Math.atan2(dist.y - obj.mCenter.y, dist.x - obj.mCenter.x);
-                obj.rotate(Math.atan2(obj.mVelocity.y, obj.mVelocity.x) - obj.mAngle);
+                obj.rotate(Math.atan2(obj.mVelocity.y, obj.mVelocity.x));
                 break;
             case 'direct':
                 var desire = dist.subtract(obj.mCenter).normalize().scale(this.maxSpeed);
                 obj.mVelocity = desire;
                 this.judge = Math.atan2(dist.y - obj.mCenter.y, dist.x - obj.mCenter.x);
-                obj.rotate(Math.atan2(obj.mVelocity.y, obj.mVelocity.x) - obj.mAngle);
+                obj.rotate(Math.atan2(obj.mVelocity.y, obj.mVelocity.x));
                 break;
         }
     }
@@ -138,8 +138,10 @@ function MyGame() {
 
     Engine.drawing.mCanvas.onmousedown = function (event) {
         // console.log(event,"event");
-        var angle = Math.atan2(event.clientY - cannon.y, event.clientX - cannon.x)
-        cannon.rotate(angle - cannon.mAngle);
+        var angle = Math.atan2(event.clientY - cannon.y, event.clientX - cannon.x);
+        cannon.rotate(angle);
+        var circleangle=Math.atan2(event.clientY - circle.y, event.clientX - circle.x);
+        circle.rotate(circleangle);
         var bullet = new Rectangle(
             {
                 pos: new Vec2(200, 300),
@@ -164,12 +166,12 @@ function MyGame() {
             let height = Engine.height;
             if (bullet.x< 0 || bullet.x > width) {
                 bullet.mVelocity.x=-bullet.mVelocity.x;
-                bullet.rotate(Math.atan2(bullet.mVelocity.y,bullet.mVelocity.x)-bullet.mAngle)
+                bullet.rotate(Math.atan2(bullet.mVelocity.y,bullet.mVelocity.x))
             }
 
             if(bullet.y< 0 || bullet.y> height){
                 bullet.mVelocity.y=-bullet.mVelocity.y;
-                bullet.rotate(Math.atan2(bullet.mVelocity.y,bullet.mVelocity.x)-bullet.mAngle)
+                bullet.rotate(Math.atan2(bullet.mVelocity.y,bullet.mVelocity.x))
             }
         })
     }

@@ -40,13 +40,18 @@ class Rectangle extends RigidShape{
         return axes;
     }
 
-    rotate(angle) {
+    rotateSlightly(angle) {
         this.mAngle += angle;
         let i;
         for (i = 0; i < this.mVertex.length; i++) {
             this.mVertex[i] = this.mVertex[i].rotate(this.mCenter, angle);
         }
         this.mFaceNormal=this.getAxes();
+        return this;
+    }
+
+    rotate(angle){
+        this.rotateSlightly(angle-this.mAngle);
         return this;
     }
 

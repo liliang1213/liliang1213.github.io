@@ -4,21 +4,21 @@ import EventEmitter from 'events';
 import Circle from './RigidBody/Circle';
 import Vec2 from './Lib/Vec2';
 import Engine from './EngineCore/Core';
-
+import utils from './Lib/utils';
 
 class MovingPath extends EventEmitter {
     constructor(opts) {
         super();
         this.params = {
             type: 'smooth',
-          /*  points: [{
+            points: [{
                 x: 300,
                 y: 300
             }, {
                 x: 600,
                 y: 100
-            }]*/
-            points:[{
+            }]
+           /* points:[{
                 x:300,
                 y:300
             },{
@@ -30,7 +30,7 @@ class MovingPath extends EventEmitter {
             },{
                 x:50,
                 y:600
-            }]
+            }]*/
         };
         this.status = 'start';
         this.maxSpeed = 100;
@@ -46,7 +46,7 @@ class MovingPath extends EventEmitter {
             case 'smooth':
                 var desire = dist.subtract(obj.mCenter).normalize().scale(this.maxSpeed);
                 var steer = desire.subtract(obj.mVelocity);
-                obj.mAcceleration = steer;
+                obj.mAcceleration = steer.normalize().scale(10);
                 this.judge = Math.atan2(dist.y - obj.mCenter.y, dist.x - obj.mCenter.x);
                 obj.rotate(Math.atan2(obj.mVelocity.y, obj.mVelocity.x) - obj.mAngle);
                 break;
@@ -69,8 +69,9 @@ class MovingPath extends EventEmitter {
         }
         var dist = this.dist;
         var obj = this.obj;
-
+console.log(new Vec2(dist.x-obj.mCenter.x,dist.y-obj.mCenter.y).length())
         if (Math.atan2(dist.y - obj.mCenter.y, dist.x - obj.mCenter.x) * this.judge < 0) {
+            debugger;
             this.currentPointIndex++;
             if (this.currentPointIndex == this.params.points.length) {
                 this.status = 'end';
@@ -84,6 +85,7 @@ class MovingPath extends EventEmitter {
 }
 
 function MyGame() {
+
     var cannon = new Rectangle({
         pos: new Vec2(200, 300),
         width: 40,
@@ -117,10 +119,10 @@ function MyGame() {
         obj: r4
     });
 
-    var p1=new Polygon({
+   /* var p1=new Polygon({
         pos:new Vec2(300,300),
         vertices:[new Vec2(0,-100),new Vec2(50,-50),new Vec2(50,0),new Vec2(50,50),new Vec2(0,100),new Vec2(-50,50),new Vec2(-50,0),new Vec2(-50,-50)],
-    })
+    })*/
 
     var interval = null;
     fish.on('end', function () {

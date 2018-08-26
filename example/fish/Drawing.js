@@ -1,3 +1,5 @@
+
+
 class Drawing{
     constructor(opts){
         this.mWidth = opts.width;
@@ -24,6 +26,16 @@ class Drawing{
                 this.drawPolygon(mAllObjects[i]);
             }
         }
+    }
+
+    drawLine(start,end){
+        this.context.strokeStyle = 'purple';
+        this.context.beginPath();
+        this.context.moveTo(start.x,start.y);
+        this.context.lineTo(end.x, end.y);
+
+        this.context.closePath();
+        this.context.stroke();
     }
 
     drawCircle(obj){

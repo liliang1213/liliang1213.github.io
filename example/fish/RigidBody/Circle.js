@@ -8,7 +8,7 @@ class Circle extends RigidShape{
         this.mRadius = opts.radius;
         this.mBoundRadius = opts.radius;
         let pos=opts.pos;
-        this.mStartpoint = new Vec2(pos.x, pos.y - this.mRadius);
+        this.mStartpoint = new Vec2(pos.x+ this.mRadius, pos.y );
         this.updateInertia();
     }
 
@@ -20,10 +20,14 @@ class Circle extends RigidShape{
         return this;
     }
 
-    rotate(angle) {
+    rotateSlightly(angle) {
         this.mAngle += angle;
         this.mStartpoint = this.mStartpoint.rotate(this.mCenter, angle);
         return this;
+    }
+
+    rotate(angle){
+        this.rotateSlightly(angle-this.mAngle);
     }
 
     updateInertia() {

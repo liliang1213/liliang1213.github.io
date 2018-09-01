@@ -10,15 +10,15 @@ class MovingPath extends EventEmitter {
     constructor(opts) {
         super();
         this.params = {
-            type: 'smooth',
-            points: [{
+            type: 'direct',
+            /*points: [{
                 x: 300,
                 y: 300
             }, {
                 x: 600,
                 y: 100
-            }]
-           /* points:[{
+            }]*/
+            points:[{
                 x:300,
                 y:300
             },{
@@ -30,7 +30,7 @@ class MovingPath extends EventEmitter {
             },{
                 x:50,
                 y:600
-            }]*/
+            }]
         };
         this.status = 'start';
         this.maxSpeed = 100;
@@ -40,20 +40,24 @@ class MovingPath extends EventEmitter {
         this.dist = this.getDist();
     }
 
+    map (n, start1, stop1, start2, stop2) {
+        return (n - start1) / (stop1 - start1) * (stop2 - start2) + start2;
+    }
+
     single(dist) {
         var obj = this.obj;
         switch (this.params.type) {
             case 'smooth':
                 var desire = dist.subtract(obj.mCenter).normalize().scale(this.maxSpeed);
                 var steer = desire.subtract(obj.mVelocity);
-                obj.mAcceleration = steer.normalize().scale(10);
+                obj.mAcceleration = steer.normalize().scale(30);
+                console.log(steer.length(),"steer.length()");
                 this.judge = Math.atan2(dist.y - obj.mCenter.y, dist.x - obj.mCenter.x);
                 obj.rotate(Math.atan2(obj.mVelocity.y, obj.mVelocity.x));
                 break;
             case 'direct':
-                var desire = dist.subtract(obj.mCenter).normalize().scale(this.maxSpeed);
-                obj.mVelocity = desire;
-                this.judge = Math.atan2(dist.y - obj.mCenter.y, dist.x - obj.mCenter.x);
+                var desire = dist.subtract(obj.mCenter);
+                obj.mVelocity=desire;
                 obj.rotate(Math.atan2(obj.mVelocity.y, obj.mVelocity.x));
                 break;
         }
@@ -69,9 +73,8 @@ class MovingPath extends EventEmitter {
         }
         var dist = this.dist;
         var obj = this.obj;
-console.log(new Vec2(dist.x-obj.mCenter.x,dist.y-obj.mCenter.y).length())
-        if (Math.atan2(dist.y - obj.mCenter.y, dist.x - obj.mCenter.x) * this.judge < 0) {
-            debugger;
+        if (dist.subtract(obj.mCenter).length() <Math.random()*20+2&& obj.mVelocity.length()<Math.random()*20+3) {
+            obj.setStatic()
             this.currentPointIndex++;
             if (this.currentPointIndex == this.params.points.length) {
                 this.status = 'end';
